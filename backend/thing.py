@@ -15,5 +15,5 @@ connection = MySQLdb.connect(
 
 cursor = connection.cursor()
 cursor.execute(
-    f"CREATE TABLE `userprompts` (`username` varchar(36) NOT NULL, `context` varchar(36),`happiness` int, PRIMARY KEY (`username`))"
+    f"CREATE TABLE `userprompts` (`username` varchar(36) NOT NULL, `context` varchar(36), `rawdata`, PRIMARY KEY (`username`))"
 )

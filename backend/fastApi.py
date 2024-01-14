@@ -14,6 +14,9 @@ from dotenv import load_dotenv
 # mysql connection
 import MySQLdb
 
+# json handling
+import json
+
 #load the .env file
 load_dotenv()
 
@@ -26,7 +29,7 @@ connection = MySQLdb.connect(
     autocommit=True,
     ssl={"ca": "/etc/ssl/cert.pem"},
 )
-
+cursor = connection.cursor()
 #initialize the FastAPI app
 
 app = FastAPI()
@@ -40,14 +43,17 @@ app.add_middleware(
 )
 
 # produce a prediction based on the text provided
-@app.get("/predict/{query}")
-def gatherUserInput(query: str):
+@app.get("/predict/{username}/{query}")
+def gatherUserInput(username: str, query: str):
     rawPredictionData = emotionPrediction.getPredictionProbability(query)
     mainPrediction = emotionPrediction.predictEmotions(query)  #
     proccessedPredictionData = rawPredictionData
     proccessedPredictionData[
         "main-emotion"
     ] = mainPrediction  # adding the main emotion to the dictionary
+    jsonifiedPredictionData = json.dumps(proccessedPredictionData)
+
+    cursor.execute(f"INSERT into entries (username, context, analysis) VALUES ('{username}', '{query}', '{jsonifiedPredictionData}')") 
     # return {"main-emotion": mainPrediction}
     return rawPredictionData
     # for i in range(len(rawPredictionData)):
@@ -58,7 +64,6 @@ def gatherUserInput(query: str):
 # create user in the database, if the user already exists, return a message saying so
 @app.get("/create/{username}/{password}")
 def createUser(username: str, password: str):
-    cursor = connection.cursor()
     cursor.execute(
         f"SELECT * FROM credentials WHERE username = '{username}' AND password = '{password}'"
     )
@@ -74,9 +79,8 @@ def createUser(username: str, password: str):
 # authenicate user. Returns true if both the username and password match, false otherwise
 @app.get("/auth/{username}/{password}")
 def authUser(username: str, password: str):
-    cursor2 = connection.cursor()
-    cursor2.execute(f"SELECT * FROM credentials WHERE username = '{username}' AND password = '{password}'")
-    if cursor2.fetchone() is None:
+    cursor.execute(f"SELECT * FROM credentials WHERE username = '{username}' AND password = '{password}'")
+    if cursor.fetchone() is None:
         return {"auth": False}
     else:
         return {"auth": True}

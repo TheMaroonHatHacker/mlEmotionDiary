@@ -1,15 +1,8 @@
 
 'use client'
 import React, { useState } from 'react';
-import 'dotenv/config'
-import { connect } from '@planetscale/database'
 
-const config = {
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    username: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-}
+
 export default function MyComponent() {
     const [inputText, setInputText] = useState('');
     const [mainEmotion, setMainEmotion] = useState('');
@@ -32,7 +25,7 @@ export default function MyComponent() {
         if (inputText === '') {
             setMainEmotion('please enter some text');
         } else {
-            const response = await fetch(`http://127.0.0.1:8000/predict/${inputText}`, {
+            const response = await fetch(`http://127.0.0.1:8000/predict/${usrName}/${inputText}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -56,12 +49,7 @@ export default function MyComponent() {
         setSadness(data['sadness']);
         setSuprise(data['suprise']);
         setWorry(data['worry']);
-        const db = await connect(config)
-        const jsontostring = JSON.stringify(data);
-        const insert = await db.query(
-            `INSERT INTO entries (username, context, yamltxt) VALUES (?, ?)`,
-            [usrName, jsontostring]
-        )
+        
         }
         
     }
