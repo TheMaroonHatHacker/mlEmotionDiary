@@ -19,7 +19,7 @@ export default function MyComponent() {
     const [sadness, setSadness] = useState(0);
     const [suprise, setSuprise] = useState(0);
     const [worry, setWorry] = useState(0);
-    const usrName = typeof window !== 'undefined' ? (window as any).localStorage.getItem('username') : null;
+    const usrName = localStorage.getItem('username'); 
     console.log(usrName);
     const handleClick = async () => {
         if (inputText === '') {
@@ -58,8 +58,8 @@ export default function MyComponent() {
         <div className="text-center">
             
             <div className="text-center flex">
-            <div className="join m-8">
             <h1 className="text-2xl">Welcome {usrName}</h1>
+            <div className="join m-8">
             <textarea className="textarea textarea-primary w-full max-w-xs m-8" type="text" value={inputText} onChange={(e) => setInputText(e.target.value)} />
             <button className="btn btn-primary m-8" onClick={handleClick}>Predict Emotion</button>
             </div>
