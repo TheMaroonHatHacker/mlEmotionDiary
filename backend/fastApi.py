@@ -10,7 +10,6 @@ from random import randint
 import time
 import datetime
 
-
 import os
 
 # import FastAPI
@@ -23,7 +22,6 @@ from dotenv import load_dotenv
 # mysql connection
 # import MySQLdb
 import mysql.connector
-
 
 # json handling
 import json
@@ -39,8 +37,21 @@ connection = mysql.connector.connect(
     database=os.getenv("DB_NAME"),
 )
 
-# intitialize "cursor" mysql
-
+arrayOfEmotions = [
+    "fun",
+    "hate",
+    "love",
+    "anger",
+    "empty",
+    "worry",
+    "relief",
+    "boredom",
+    "neutral",
+    "sadness",
+    "surprise",
+    "happiness",
+    "enthusiasm",
+]
 
 # initialize the FastAPI app
 app = FastAPI()
@@ -82,10 +93,16 @@ def gatherUserInput(username: str, query: str):
 @app.get("/analysis/{username}")
 def overallAnalysis(username: str):
     cursor = connection.cursor()
-    cursor.execute(f"SELECT analysis FROM entires WHERE username = '{username}'")
+    cursor.execute(f"SELECT analysis FROM entries WHERE username = '{username}'")
     retrieved = cursor.fetchall()
-    for row in retrieved:
-        print(row)
+    newdict = {}
+    for item in retrieved:
+        actuallyParsed = json.loads(item[0])
+        for currentemotion in arrayOfEmotions:
+            newdict[currentemotion] = newdict.get(currentemotion, 0) + actuallyParsed[currentemotion]
+    for i in range(0, len(newdict)):
+        newdict[arrayOfEmotions[i]] = newdict[arrayOfEmotions[i]] / 5
+    return newdict
 
 
 # create user in the database, if the user already exists, return a message saying so
