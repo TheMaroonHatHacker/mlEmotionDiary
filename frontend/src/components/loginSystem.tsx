@@ -15,12 +15,13 @@ const LoginSystem: React.FC = () => {
   };
 
   const handleLogin = async  () => {
-    const response = await fetch(`http://127.0.0.1:8000/auth/${username}/${password}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-          });
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('password', password);
+    const response =  await fetch("http://127.0.0.1:8000/auth/login", {
+      method: "POST",
+      body: formData,
+    });
     const data = await response.json();
     console.log(data['auth']);
     if(data['auth'] == 'true'){

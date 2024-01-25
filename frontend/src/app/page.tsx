@@ -1,5 +1,5 @@
 //import Image from 'next/image'
-import UserInput from './userInput'
+import UserInput from '../components/userInput'
 
 
 export default function Home() {
