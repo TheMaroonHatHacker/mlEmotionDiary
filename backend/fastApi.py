@@ -13,7 +13,7 @@ import datetime
 import os
 
 # import FastAPI
-from fastapi import FastAPI
+from fastapi import FastAPI, Form, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 
 # Allow for the use of .env files
@@ -35,6 +35,7 @@ connection = mysql.connector.connect(
     user=os.getenv("DB_USERNAME"),
     password=os.getenv("DB_PASSWORD"),
     database=os.getenv("DB_NAME"),
+    autocommit=True,
 )
 
 arrayOfEmotions = [
