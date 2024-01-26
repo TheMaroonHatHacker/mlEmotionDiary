@@ -51,6 +51,6 @@ const LoginSystem: React.FC = () => {
 
 const DynamicComponentWithNoSSR = dynamic(() => Promise.resolve(LoginSystem), { ssr: false });
 
-export default function loginHandler() {
+export default function LoginHandler() {
   return <DynamicComponentWithNoSSR />;
 }

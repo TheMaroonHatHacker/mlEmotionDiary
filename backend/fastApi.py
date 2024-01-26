@@ -3,6 +3,14 @@
 # Description: This file contains the API for the emotion detection model
 import emotionPrediction
 
+#import all the libraries needed for JWT
+from typing import Annotated
+from datetime import datetime,timedelta,timezone
+from passlib.context import CryptContext
+from jose import jwt
+
+HASH_CONTEXT = CryptContext(schemes=["bcrypt"])
+
 # import random
 from random import randint
 
@@ -13,7 +21,7 @@ import datetime
 import os
 
 # import FastAPI
-from fastapi import FastAPI
+from fastapi import FastAPI, Form, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 
 # Allow for the use of .env files
@@ -25,6 +33,8 @@ import mysql.connector
 
 # json handling
 import json
+
+
 
 # load the .env file
 load_dotenv()
@@ -137,3 +147,18 @@ def authUser(username: str, password: str):
     else:
         cursor.close()
         return {"auth": True}
+
+@app.post("/auth/login")
+def authLogin(username: Annotated[str, Form()], password: Annotated[str, Form()], res: Response):
+    cursor = connection.cursor()
+    cursor.execute(
+        f"SELECT * FROM credentials WHERE username = '{username}' AND password = '{password}'"
+    )
+    if cursor.fetchone() is None:
+        cursor.close()
+        success = False
+    else:
+        cursor.close()
+        success = True
+    res.status_code = status.HTTP_201_CREATED
+    return {"auth": success}

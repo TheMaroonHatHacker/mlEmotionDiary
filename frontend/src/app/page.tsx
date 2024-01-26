@@ -1,5 +1,6 @@
 //import Image from 'next/image'
 import UserInput from '../components/userInput'
+import LoginHandler from '@/components/loginSystem'
 
 
 export default function Home() {
@@ -8,7 +9,7 @@ export default function Home() {
       <h1 className="text-6xl font-bold m-8">
         ML Emotion Diary
       </h1>
-
+      <LoginHandler />
 
 
       <p className="m-8">
