@@ -79,11 +79,9 @@ app.add_middleware(
 @app.get("/predict/{username}/{query}")
 def gatherUserInput(username: str, query: str):
     rawPredictionData = emotionPrediction.getPredictionProbability(query)
-    mainPrediction = emotionPrediction.predictEmotions(query)  #
+    #mainPrediction = emotionPrediction.predictEmotions(query)  #
     proccessedPredictionData = rawPredictionData
-    proccessedPredictionData[
-        "main-emotion"
-    ] = mainPrediction  # adding the main emotion to the dictionary
+    #proccessedPredictionData["main-emotion"] = mainPrediction  # adding the main emotion to the dictionary
     jsonifiedPredictionData = json.dumps(proccessedPredictionData)
     newID = randint(0, 100000)
     cursor = connection.cursor()
@@ -135,19 +133,6 @@ def createUser(username: str, password: str):
 
 
 # authenicate user. Returns true if both the username and password match, false otherwise
-@app.get("/auth/{username}/{password}")
-def authUser(username: str, password: str):
-    cursor = connection.cursor()
-    cursor.execute(
-        f"SELECT * FROM credentials WHERE username = '{username}' AND password = '{password}'"
-    )
-    if cursor.fetchone() is None:
-        cursor.close()
-        return {"auth": False}
-    else:
-        cursor.close()
-        return {"auth": True}
-
 @app.post("/auth/login")
 def authLogin(username: Annotated[str, Form()], password: Annotated[str, Form()], res: Response):
     cursor = connection.cursor()
@@ -160,5 +145,24 @@ def authLogin(username: Annotated[str, Form()], password: Annotated[str, Form()]
     else:
         cursor.close()
         success = True
+    return {"auth": success}
+
+# create a new user
+@app.post("/auth/signup")
+def authSignUp(username: Annotated[str, Form()], password: Annotated[str, Form()], res: Response):
+    cursor = connection.cursor()
+    cursor.execute(
+        f"SELECT * FROM credentials WHERE username = '{username}'"
+    )
+    if cursor.fetchone() is None:
+        cursor.execute(
+            f"INSERT INTO credentials (username, password) VALUES ('{username}', '{password}')"
+        )
+        connection.commit()
+        cursor.close()
+        success = True
+    else:
+        cursor.close()
+        success = False
     res.status_code = status.HTTP_201_CREATED
     return {"auth": success}

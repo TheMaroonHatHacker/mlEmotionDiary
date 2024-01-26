@@ -19,23 +19,29 @@ const LoginSystem: React.FC = () => {
     formData.append('username', username);
     formData.append('password', password);
     const response =  await fetch("http://127.0.0.1:8000/auth/login", {
-      method: "POST",
+      method: 'POST',
       body: formData,
     });
     const data = await response.json();
     console.log(data['auth']);
-    if(data['auth'] == 'true'){
-      (window as any).localStorage.setItem('username', username);
+    if(data['auth'] == true){
+      try {
+        console.log('username:', username);
+        (window as any).localStorage.setItem('username', username);
+      } catch (error) {
+        console.error('Failed to set item in localStorage:', error);
+      }
 
     }
     
   };
   const handleRegister = async () => {
-    const response = await fetch(`http://127.0.0.1:8000/create/${username}/${password}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('password', password);
+    const response = await fetch(`http://127.0.0.1:8000/auth/signup`, {
+            method: 'POST',
+            body: formData,
           });
   };
 
