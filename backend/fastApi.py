@@ -177,9 +177,9 @@ def createEntry(username: Annotated[str, Form()], text: Annotated[str, Form()]):
     newID = randint(0, 100000)
     cursor = connection.cursor()
     # combine the random id with the current time to create a unique id
-    cursor.execute(
-        f"INSERT into entries (entryID, username, context, analysis) VALUES ({newID}, '{username}', '{text}', '{jsonifiedPredictionData}');"
-    )
+    query = "INSERT into entries (entryID, username, context, analysis) VALUES (%s, %s, %s, %s)"
+    values = (newID, username, text, jsonifiedPredictionData)
+    cursor.execute(query, values)
     connection.commit()
     cursor.close()
     return proccessedPredictionData
