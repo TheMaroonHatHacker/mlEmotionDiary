@@ -42,13 +42,14 @@ export const UserInput = (props: {userName: string | null}) => {
       setStatus("please enter some text");
     } else {
       setStatus("loading...");
+      const form = new FormData();
+      form.append("text", inputText);
+      form.append("username", usrName);
       const response = await fetch(
-        `http://127.0.0.1:8000/predict/${usrName}/${inputText}`,
+        `http://127.0.0.1:8000/predict`,
         {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          method: "POST",
+          body: form,
         }
       );
       const data = await response.json();

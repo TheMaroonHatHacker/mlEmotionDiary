@@ -45,6 +45,7 @@ connection = mysql.connector.connect(
     user=os.getenv("DB_USERNAME"),
     password=os.getenv("DB_PASSWORD"),
     database=os.getenv("DB_NAME"),
+    autocommit=True,
 )
 
 arrayOfEmotions = [
@@ -76,23 +77,23 @@ app.add_middleware(
 
 
 # produce a prediction based on the text provided
-@app.get("/predict/{username}/{query}")
-def gatherUserInput(username: str, query: str):
-    rawPredictionData = emotionPrediction.getPredictionProbability(query)
-    #mainPrediction = emotionPrediction.predictEmotions(query)  #
-    proccessedPredictionData = rawPredictionData
-    #proccessedPredictionData["main-emotion"] = mainPrediction  # adding the main emotion to the dictionary
-    jsonifiedPredictionData = json.dumps(proccessedPredictionData)
-    newID = randint(0, 100000)
-    cursor = connection.cursor()
-    # combine the random id with the current time to create a unique id
-    cursor.execute(
-        f"INSERT into entries (entryID, username, context, analysis) VALUES ({newID}, '{username}', '{query}', '{jsonifiedPredictionData}');"
-    )
-    connection.commit()
-    cursor.close()
-    # return {"main-emotion": mainPrediction}
-    return rawPredictionData
+#@app.get("/predict/{username}/{query}")
+#def gatherUserInput(username: str, query: str):
+#    rawPredictionData = emotionPrediction.getPredictionProbability(query)
+#    #mainPrediction = emotionPrediction.predictEmotions(query)  #
+#    proccessedPredictionData = rawPredictionData
+#    #proccessedPredictionData["main-emotion"] = mainPrediction  # adding the main emotion to the dictionary
+#    jsonifiedPredictionData = json.dumps(proccessedPredictionData)
+#    newID = randint(0, 100000)
+#    cursor = connection.cursor()
+#    # combine the random id with the current time to create a unique id
+#    cursor.execute(
+#        f"INSERT into entries (entryID, username, context, analysis) VALUES ({newID}, '{username}', '{query}', '{jsonifiedPredictionData}');"
+#    )
+#    connection.commit()
+#    cursor.close()
+#    # return {"main-emotion": mainPrediction}
+#    return rawPredictionData
     # for i in range(len(rawPredictionData)):
     #    rawPredictionData[i] = rawPredictionData[i] * 100 # converting the probabilities into percentages
     #    return {emotionPrediction.emotionsArray[i]: rawPredictionData[i]}
@@ -166,3 +167,19 @@ def authSignUp(username: Annotated[str, Form()], password: Annotated[str, Form()
         success = False
     res.status_code = status.HTTP_201_CREATED
     return {"auth": success}
+
+# Create a new entry
+@app.post("/predict")
+def createEntry(username: Annotated[str, Form()], text: Annotated[str, Form()]):
+    rawPredictionData = emotionPrediction.getPredictionProbability(text)
+    proccessedPredictionData = rawPredictionData
+    jsonifiedPredictionData = json.dumps(proccessedPredictionData)
+    newID = randint(0, 100000)
+    cursor = connection.cursor()
+    # combine the random id with the current time to create a unique id
+    cursor.execute(
+        f"INSERT into entries (entryID, username, context, analysis) VALUES ({newID}, '{username}', '{text}', '{jsonifiedPredictionData}');"
+    )
+    connection.commit()
+    cursor.close()
+    return proccessedPredictionData
