@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 
-export default function MyComponent() {
+export const UserInput = (props: {userName: string | null}) => {
   type Emotion = {
     anger: number;
     boredom: number;
@@ -35,7 +35,7 @@ export default function MyComponent() {
   const [status, setStatus] = useState("");
   const [emotions, setEmotions] = useState<Emotion | null>(initialEmotion);
   const [inputText, setInputText] = useState("");
-  const usrName = (window as any).localStorage.getItem("username");
+  const usrName = props.userName;
   console.log(usrName);
   const handleClick = async () => {
     if (inputText === "") {
@@ -75,18 +75,12 @@ export default function MyComponent() {
   return (
     <div className="">
       <div className="justify-center items-center flex join join-horizontal">
-        <input
-          className="textarea textarea-bordered join-item"
-          type="text"
-          value={inputText}
-          placeholder="Enter a query"
-        />
-        <button className="btn join-item" onClick={handleClick}>
-          Submit
-        </button>
+      <textarea className="textarea textarea-primary join-item" type="text" value={inputText} onChange={(e) => setInputText(e.target.value)} />
+            <button className="btn btn-primary join-item" onClick={handleClick}>Predict Emotion</button>
       </div>
       <div className="text-center justify-center m-8">
         <p>{status}</p>
+        <p>{usrName}</p>
       </div>
       <div className="m-8 grid grid-cols-5 text-center">
         {emotions &&
@@ -96,7 +90,7 @@ export default function MyComponent() {
               className="radial-progress m-8 text-primary"
               style={{ "--value": intensity }}
             >
-              {emotion} - {intensity}
+              {emotion} | {intensity}
             </div>
           ))}
       </div>
