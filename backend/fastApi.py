@@ -15,10 +15,6 @@ HASH_CONTEXT = CryptContext(schemes=["bcrypt"])
 # import random
 from random import randint
 
-# import time
-import time
-import datetime
-
 import os
 
 # import FastAPI
@@ -123,7 +119,6 @@ def authLogin(username: Annotated[str, Form()], password: Annotated[str, Form()]
 @app.post("/auth/signup")
 def authSignUp(username: Annotated[str, Form()], password: Annotated[str, Form()], res: Response):
     hashed = hashThePassword(password)
-    password = hashed
     cursor = connection.cursor()
     cursor.execute(
         "SELECT * FROM credentials WHERE username = %s", (username,)
@@ -131,7 +126,7 @@ def authSignUp(username: Annotated[str, Form()], password: Annotated[str, Form()
     if cursor.fetchone() is None:
         try:
             cursor.execute(
-                "INSERT INTO credentials (username, password) VALUES (%s, %s)", (username, password)
+                "INSERT INTO credentials (username, password) VALUES (%s, %s)", (username, hashed)
             )
             connection.commit()
             success = True
