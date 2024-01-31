@@ -32,6 +32,8 @@ export const LoginSystem = (props: {setter: Dispatch<SetStateAction<string | nul
       } catch (error) {
         console.error("Failed to set item in localStorage:", error);
       }
+    } else {
+      props.setter("invalid")
     }
   };
   const handleRegister = async () => {

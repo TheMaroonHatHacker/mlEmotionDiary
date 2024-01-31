@@ -7,7 +7,8 @@ import emotionPrediction
 from typing import Annotated
 from datetime import datetime,timedelta,timezone
 from passlib.context import CryptContext
-from jose import jwt
+from jose import jwt, JWTError, ExpiredSignatureError
+from bcrypt import hashpw, gensalt, checkpw
 
 HASH_CONTEXT = CryptContext(schemes=["bcrypt"])
 
@@ -75,31 +76,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+def hashThePassword(password):
+    return hashpw(password.encode("utf-8"), gensalt()).decode("utf-8")
 
-# produce a prediction based on the text provided
-#@app.get("/predict/{username}/{query}")
-#def gatherUserInput(username: str, query: str):
-#    rawPredictionData = emotionPrediction.getPredictionProbability(query)
-#    #mainPrediction = emotionPrediction.predictEmotions(query)  #
-#    proccessedPredictionData = rawPredictionData
-#    #proccessedPredictionData["main-emotion"] = mainPrediction  # adding the main emotion to the dictionary
-#    jsonifiedPredictionData = json.dumps(proccessedPredictionData)
-#    newID = randint(0, 100000)
-#    cursor = connection.cursor()
-#    # combine the random id with the current time to create a unique id
-#    cursor.execute(
-#        f"INSERT into entries (entryID, username, context, analysis) VALUES ({newID}, '{username}', '{query}', '{jsonifiedPredictionData}');"
-#    )
-#    connection.commit()
-#    cursor.close()
-#    # return {"main-emotion": mainPrediction}
-#    return rawPredictionData
-    # for i in range(len(rawPredictionData)):
-    #    rawPredictionData[i] = rawPredictionData[i] * 100 # converting the probabilities into percentages
-    #    return {emotionPrediction.emotionsArray[i]: rawPredictionData[i]}
+def checkPassword(password, hashed):
+    return checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
+
+def decodePassword(password):
+    return password.decode("utf-8")
 
 
-@app.get("/analysis/{username}")
+
+@app.post("/ai/analysis")
 def overallAnalysis(username: str):
     cursor = connection.cursor()
     cursor.execute(f"SELECT analysis FROM entries WHERE username = '{username}'")
@@ -114,72 +102,67 @@ def overallAnalysis(username: str):
     return newdict
 
 
-# create user in the database, if the user already exists, return a message saying so
-@app.get("/create/{username}/{password}")
-def createUser(username: str, password: str):
-    cursor = connection.cursor()
-    cursor.execute(
-        f"SELECT * FROM credentials WHERE username = '{username}' AND password = '{password}'"
-    )
-    if cursor.fetchone() is None:
-        cursor.execute(
-            f"INSERT INTO credentials (username, password) VALUES ('{username}', '{password}')"
-        )
-        connection.commit()
-        cursor.close()
-        return {"username": username, "password": password, "AlreadyExists": False}
-    else:
-        cursor.close()
-        return {"username": "null", "password": "null", "AlreadyExists": True}
-
 
 # authenicate user. Returns true if both the username and password match, false otherwise
 @app.post("/auth/login")
 def authLogin(username: Annotated[str, Form()], password: Annotated[str, Form()], res: Response):
     cursor = connection.cursor()
     cursor.execute(
-        f"SELECT * FROM credentials WHERE username = '{username}' AND password = '{password}'"
+        "SELECT password FROM credentials WHERE username = %s", (username,)
     )
-    if cursor.fetchone() is None:
-        cursor.close()
+    record = cursor.fetchone()
+    if record is None:
         success = False
     else:
-        cursor.close()
-        success = True
+        hashed_password = record[0]
+        success = checkPassword(password, hashed_password)
+    cursor.close()
     return {"auth": success}
 
 # create a new user
 @app.post("/auth/signup")
 def authSignUp(username: Annotated[str, Form()], password: Annotated[str, Form()], res: Response):
+    hashed = hashThePassword(password)
+    password = hashed
     cursor = connection.cursor()
     cursor.execute(
-        f"SELECT * FROM credentials WHERE username = '{username}'"
+        "SELECT * FROM credentials WHERE username = %s", (username,)
     )
     if cursor.fetchone() is None:
-        cursor.execute(
-            f"INSERT INTO credentials (username, password) VALUES ('{username}', '{password}')"
-        )
-        connection.commit()
-        cursor.close()
-        success = True
+        try:
+            cursor.execute(
+                "INSERT INTO credentials (username, password) VALUES (%s, %s)", (username, password)
+            )
+            connection.commit()
+            success = True
+        except Exception as e:
+            print(e)  # or log the error
+            success = False
     else:
-        cursor.close()
         success = False
-    res.status_code = status.HTTP_201_CREATED
+    cursor.close()
     return {"auth": success}
 
 # Create a new entry
-@app.post("/predict")
+@app.post("/ai/predict")
 def createEntry(username: Annotated[str, Form()], text: Annotated[str, Form()]):
-    rawPredictionData = emotionPrediction.getPredictionProbability(text)
-    proccessedPredictionData = rawPredictionData
-    jsonifiedPredictionData = json.dumps(proccessedPredictionData)
-    newID = randint(0, 100000)
     cursor = connection.cursor()
-    # combine the random id with the current time to create a unique id
-    query = "INSERT into entries (entryID, username, context, analysis) VALUES (%s, %s, %s, %s)"
-    values = (newID, username, text, jsonifiedPredictionData)
-    cursor.execute(query, values)
-    connection.commit()
-    cursor.close()
-    return proccessedPredictionData
+    query = "SELECT username FROM credentials WHERE username = %s"
+    cursor.execute(query, (username,))
+    record = cursor.fetchone()
+    if record is None:
+        return {"error": "User does not exist"}
+    else:
+        rawPredictionData = emotionPrediction.getPredictionProbability(text)
+        proccessedPredictionData = rawPredictionData
+        jsonifiedPredictionData = json.dumps(proccessedPredictionData)
+        newID = randint(0, 100000)
+        # combine the random id with the current time to create a unique id
+        query = "INSERT into entries (entryID, username, context, analysis) VALUES (%s, %s, %s, %s)"
+        values = (newID, username, text, jsonifiedPredictionData)
+        cursor.execute(query, values)
+        connection.commit()
+        cursor.close()
+        return proccessedPredictionData
+
+
