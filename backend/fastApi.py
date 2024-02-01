@@ -3,14 +3,12 @@
 # Description: This file contains the API for the emotion detection model
 import emotionPrediction
 
-#import all the libraries needed for JWT
+# import all the libraries needed for JWT
 from typing import Annotated
-from datetime import datetime,timedelta,timezone
+from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
 from jose import jwt, JWTError, ExpiredSignatureError
 from bcrypt import hashpw, gensalt, checkpw
-
-HASH_CONTEXT = CryptContext(schemes=["bcrypt"])
 
 # import random
 from random import randint
@@ -30,7 +28,6 @@ import mysql.connector
 
 # json handling
 import json
-
 
 
 # load the .env file
@@ -72,15 +69,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 def hashThePassword(password):
     return hashpw(password.encode("utf-8"), gensalt()).decode("utf-8")
+
 
 def checkPassword(password, hashed):
     return checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
 
+
 def decodePassword(password):
     return password.decode("utf-8")
-
 
 
 @app.post("/ai/analysis")
@@ -92,20 +91,21 @@ def overallAnalysis(username: str):
     for item in retrieved:
         actuallyParsed = json.loads(item[0])
         for currentemotion in arrayOfEmotions:
-            newdict[currentemotion] = newdict.get(currentemotion, 0) + actuallyParsed[currentemotion]
+            newdict[currentemotion] = (
+                newdict.get(currentemotion, 0) + actuallyParsed[currentemotion]
+            )
     for i in range(0, len(newdict)):
         newdict[arrayOfEmotions[i]] = newdict[arrayOfEmotions[i]] / 5
     return newdict
 
 
-
 # authenicate user. Returns true if both the username and password match, false otherwise
 @app.post("/auth/login")
-def authLogin(username: Annotated[str, Form()], password: Annotated[str, Form()], res: Response):
+def authLogin(
+    username: Annotated[str, Form()], password: Annotated[str, Form()], res: Response
+):
     cursor = connection.cursor()
-    cursor.execute(
-        "SELECT password FROM credentials WHERE username = %s", (username,)
-    )
+    cursor.execute("SELECT password FROM credentials WHERE username = %s", (username,))
     record = cursor.fetchone()
     if record is None:
         success = False
@@ -115,18 +115,20 @@ def authLogin(username: Annotated[str, Form()], password: Annotated[str, Form()]
     cursor.close()
     return {"auth": success}
 
+
 # create a new user
 @app.post("/auth/signup")
-def authSignUp(username: Annotated[str, Form()], password: Annotated[str, Form()], res: Response):
+def authSignUp(
+    username: Annotated[str, Form()], password: Annotated[str, Form()], res: Response
+):
     hashed = hashThePassword(password)
     cursor = connection.cursor()
-    cursor.execute(
-        "SELECT * FROM credentials WHERE username = %s", (username,)
-    )
+    cursor.execute("SELECT * FROM credentials WHERE username = %s", (username,))
     if cursor.fetchone() is None:
         try:
             cursor.execute(
-                "INSERT INTO credentials (username, password) VALUES (%s, %s)", (username, hashed)
+                "INSERT INTO credentials (username, password) VALUES (%s, %s)",
+                (username, hashed),
             )
             connection.commit()
             success = True
@@ -137,6 +139,7 @@ def authSignUp(username: Annotated[str, Form()], password: Annotated[str, Form()
         success = False
     cursor.close()
     return {"auth": success}
+
 
 # Create a new entry
 @app.post("/ai/predict")
@@ -159,5 +162,3 @@ def createEntry(username: Annotated[str, Form()], text: Annotated[str, Form()]):
         connection.commit()
         cursor.close()
         return proccessedPredictionData
-
-

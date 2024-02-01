@@ -3,7 +3,7 @@ import pandas as pd  # data processing, CSV file I/O (e.g. pd.read_csv)
 # import numpy as np  # linear algebra
 import neattext.functions as neattxt  # text cleaning
 
-# from sklearn.linear_model import LogisticRegression # model
+from sklearn.linear_model import LogisticRegression # model
 from sklearn.ensemble import RandomForestClassifier  # model
 from sklearn.pipeline import Pipeline  # pipeline
 
