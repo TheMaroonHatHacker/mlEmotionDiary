@@ -115,12 +115,13 @@ def authLogin(
     cursor = connection.cursor()
     cursor.execute("SELECT password FROM credentials WHERE username = %s", (username,))
     record = cursor.fetchone()
-    if record is None:
-        success = False
-    else:
-        hashed_password = record[0]
-        success = checkPassword(password, hashed_password)
     cursor.close()
+    if record is None:
+        return {"auth": False, "token": None}
+    hashed_password = record[0]
+    success = checkPassword(password, hashed_password)
+    if not success:
+        return {"auth": False, "token": None}
     return {"auth": success, "token": createJWTToken(username)}
 
 
