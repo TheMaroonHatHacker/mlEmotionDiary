@@ -81,6 +81,14 @@ def checkPassword(password, hashed):
 def decodePassword(password):
     return password.decode("utf-8")
 
+def createJWTToken(username):
+    token = jwt.encode(
+        {"exp": datetime.utcnow() + timedelta(minutes=30), "username": data},
+        os.getenv("JWT_SECRET"),
+        algorithm="HS256",
+    )
+    return token
+
 
 @app.post("/ai/analysis")
 def overallAnalysis(username: str):

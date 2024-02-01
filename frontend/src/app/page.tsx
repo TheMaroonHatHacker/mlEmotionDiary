@@ -7,7 +7,7 @@ import { LoginSystem } from '@/components/loginSystem'
 
 
 export default function Home() {
-  const [usrName, setUserName] = useState(window.localStorage.getItem("username"));
+  const [usrName, setUserName] = useState(localStorage.getItem("username"));
   return (
     <main className="flex flex-col items-center justify-between p-24">
       <h1 className="text-6xl font-bold m-8">
