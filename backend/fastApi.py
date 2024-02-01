@@ -83,7 +83,7 @@ def decodePassword(password):
 
 def createJWTToken(username):
     token = jwt.encode(
-        {"exp": datetime.utcnow() + timedelta(minutes=30), "username": data},
+        {"exp": datetime.utcnow() + timedelta(minutes=30), "username": username},
         os.getenv("JWT_SECRET"),
         algorithm="HS256",
     )
@@ -121,7 +121,7 @@ def authLogin(
         hashed_password = record[0]
         success = checkPassword(password, hashed_password)
     cursor.close()
-    return {"auth": success}
+    return {"auth": success, "token": createJWTToken(username)}
 
 
 # create a new user
