@@ -88,6 +88,14 @@ def createJWTToken(username):
         algorithm="HS256",
     )
     return token
+def decodeJWTToken(token):
+    try:
+        payload = jwt.decode(token, os.getenv("JWT_SECRET"), algorithms=["HS256"])
+        return payload
+    except ExpiredSignatureError:
+        return "expired"
+    except JWTError:
+        return "invalid"
 
 
 @app.post("/ai/analysis")
@@ -152,8 +160,10 @@ def authSignUp(
 
 # Create a new entry
 @app.post("/ai/predict")
-def createEntry(username: Annotated[str, Form()], text: Annotated[str, Form()]):
+def createEntry(text: Annotated[str, Form()], token: Annotated[str, Form()]):
     cursor = connection.cursor()
+    decodedToken = decodeJWTToken(token)
+    username = decodedToken["username"]
     query = "SELECT username FROM credentials WHERE username = %s"
     cursor.execute(query, (username,))
     record = cursor.fetchone()
