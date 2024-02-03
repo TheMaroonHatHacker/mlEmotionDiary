@@ -1,7 +1,10 @@
 "use client";
 import React, { useState } from "react";
 
-export const UserInput = (props: {userName: string | null}) => {
+export const UserInput = (props: {
+  userName: string | null;
+  token: string | null;
+}) => {
   type Emotion = {
     anger: number;
     boredom: number;
@@ -36,23 +39,62 @@ export const UserInput = (props: {userName: string | null}) => {
   const [emotions, setEmotions] = useState<Emotion | null>(initialEmotion);
   const [inputText, setInputText] = useState("");
   const usrName = props.userName;
+  const usrToken = props.token;
   console.log(usrName);
   const handlePredict = async () => {
     if (inputText === "") {
       setStatus("please enter some text");
+      return;
+    }
+    if (usrName === null || usrToken === null) {
+      setStatus("please login to use this feature");
+      return;
+    }
+    setStatus("loading...");
+    const form = new FormData();
+    form.append("text", inputText);
+    form.append("username", usrName);
+    form.append("token", usrToken);
+    const response = await fetch(`http://127.0.0.1:8000/ai/predict`, {
+      method: "POST",
+      body: form,
+    });
+    const data = await response.json();
+    setEmotions(data);
+    setStatus("Data Loaded");
+    const emotion = [
+      "anger",
+      "boredom",
+      "empty",
+      "enthusiasm",
+      "fun",
+      "happiness",
+      "hate",
+      "love",
+      "neutral",
+      "relief",
+      "sadness",
+      "suprise",
+      "worry",
+    ];
+  };
+
+  const handleAnalysis = async () => {
+    setStatus("Loading...");
+    const form = new FormData();
+    if (usrName === null) {
+      setStatus("please login to use this feature");
+      return;
+    }
+    form.append("username", usrName);
+    const response = await fetch(`http://127.0.0.1:8000/ai/analysis`, {
+      method: "POST",
+      body: form,
+    });
+    const data = await response.json();
+    if (data["error"]) {
+      setStatus("No data found");
     } else {
-      setStatus("loading...");
-      const form = new FormData();
-      form.append("text", inputText);
-      form.append("username", usrName);
-      const response = await fetch(
-        `http://127.0.0.1:8000/ai/predict`,
-        {
-          method: "POST",
-          body: form,
-        }
-      );
-      const data = await response.json();
       setEmotions(data);
       setStatus("Data Loaded");
       const emotion = [
@@ -73,49 +115,20 @@ export const UserInput = (props: {userName: string | null}) => {
     }
   };
 
-  const handleAnalysis = async () => {
-    setStatus("Loading...")
-    const form = new FormData()
-    form.append("username", usrName);
-      const response = await fetch(
-        `http://127.0.0.1:8000/ai/analysis`,
-        {
-          method: "POST",
-          body: form,
-        }
-      );
-      const data = await response.json();
-      if (data["error"]) {
-        setStatus("No data found")
-      } else {
-        setEmotions(data);
-        setStatus("Data Loaded");
-        const emotion = [
-        "anger",
-        "boredom",
-        "empty",
-        "enthusiasm",
-        "fun",
-        "happiness",
-        "hate",
-        "love",
-        "neutral",
-        "relief",
-        "sadness",
-        "suprise",
-        "worry",
-      ];
-      }
-      
-    
-  }
-
   return (
     <div className="">
       <div className="justify-center items-center flex join join-horizontal">
-      <textarea className="textarea textarea-primary join-item" type="text" value={inputText} onChange={(e) => setInputText(e.target.value)} />
-            <button className="btn btn-primary join-item" onClick={handlePredict}>Predict Emotion</button>
-            <button className="btn btn-primary join-item" onClick={handleAnalysis}>Analysis</button>
+        <textarea
+          className="textarea textarea-primary join-item"
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+        />
+        <button className="btn btn-primary join-item" onClick={handlePredict}>
+          Predict Emotion
+        </button>
+        <button className="btn btn-primary join-item" onClick={handleAnalysis}>
+          Analysis
+        </button>
       </div>
       <div className="text-center justify-center m-8">
         <p>{status}</p>
@@ -127,7 +140,7 @@ export const UserInput = (props: {userName: string | null}) => {
             <div
               key={index}
               className="radial-progress m-8 text-primary"
-              style={{ "--value": intensity }}
+              style={{ "--value": intensity } as React.CSSProperties}
             >
               {emotion} | {intensity}
             </div>
@@ -135,4 +148,4 @@ export const UserInput = (props: {userName: string | null}) => {
       </div>
     </div>
   );
-}
+};

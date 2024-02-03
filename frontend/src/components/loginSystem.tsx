@@ -1,7 +1,7 @@
 "use client";
 import React, { Dispatch, SetStateAction, useState } from "react";
 
-export const LoginSystem = (props: {setter: Dispatch<SetStateAction<string | null>>}) => {
+export const LoginSystem = (props: {setter: Dispatch<SetStateAction<string | null>>, tokenSetter: Dispatch<SetStateAction<string | null>>}) => {
   
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -28,7 +28,9 @@ export const LoginSystem = (props: {setter: Dispatch<SetStateAction<string | nul
       try {
         console.log("username:", username);
         (window as any).localStorage.setItem("username", username);
+        (window as any).localStorage.setItem("token", data["token"]);
         props.setter(username);
+        props.tokenSetter(data["token"]);
       } catch (error) {
         console.error("Failed to set item in localStorage:", error);
       }

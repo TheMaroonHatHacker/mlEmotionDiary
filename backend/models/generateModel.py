@@ -3,7 +3,7 @@ import pandas as pd  # data processing, CSV file I/O (e.g. pd.read_csv)
 # import numpy as np  # linear algebra
 import neattext.functions as neattxt  # text cleaning
 
-from sklearn.linear_model import LogisticRegression # model
+from sklearn.linear_model import LinearRegression # model
 from sklearn.ensemble import RandomForestClassifier  # model
 from sklearn.pipeline import Pipeline  # pipeline
 
@@ -43,14 +43,14 @@ cleanedData_train, cleanedData_test, labels_train, labels_test = train_test_spli
 )  # splitting the data into training and testing data
 
 rfPipeline = Pipeline(
-    [("vectorizer", CountVectorizer()), ("model", RandomForestClassifier())]
+    [("vectorizer", CountVectorizer()), ("model", LinearRegression())]
 )  # creating a pipeline with a vectorizer and a model
 rfPipeline.fit(
     cleanedData_train, labels_train
 )  # fitting the training data to the pipeline
-rfPipeline.score(cleanedData_test, labels_test)  # testing the model
+print(rfPipeline.score(cleanedData_test, labels_test))  # testing the model
 pipeline_file = open(
-    "emotion_classifier_pipe_rf.pkl", "wb"
+    "emotion_classifier_pipe_lr.pkl", "wb"
 )  # creating a file to dump the pipeline into
 joblib.dump(
     rfPipeline, pipeline_file
