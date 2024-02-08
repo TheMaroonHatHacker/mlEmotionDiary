@@ -181,8 +181,8 @@ def overallAnalysis(token: Annotated[str, Form()]):
     newdict = {}
     for item in retrieved:
         actuallyParsed = json.loads(item[0])
-        print(pd.to_datetime(item[1]))
-        print(type(pd.to_datetime(item[1])))
+        print(item[1])
+        print(type(item[1]))
         for currentemotion in arrayOfEmotions:
             newdict[currentemotion] = (
                 newdict.get(currentemotion, 0) + actuallyParsed[currentemotion]
