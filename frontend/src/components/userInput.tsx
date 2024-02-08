@@ -53,7 +53,6 @@ export const UserInput = (props: {
     setStatus("loading...");
     const form = new FormData();
     form.append("text", inputText);
-    form.append("username", usrName);
     form.append("token", usrToken);
     const response = await fetch(`http://127.0.0.1:8000/ai/predict`, {
       method: "POST",
@@ -80,40 +79,37 @@ export const UserInput = (props: {
   };
 
   const handleAnalysis = async () => {
-    setStatus("Loading...");
-    const form = new FormData();
-    if (usrName === null) {
+    
+    if (usrName === null || usrToken === null) {
       setStatus("please login to use this feature");
       return;
     }
-    form.append("username", usrName);
+    setStatus("loading...");
+    const form = new FormData();
+    form.append("token", usrToken);
     const response = await fetch(`http://127.0.0.1:8000/ai/analysis`, {
       method: "POST",
       body: form,
     });
     const data = await response.json();
-    if (data["error"]) {
-      setStatus("No data found");
-    } else {
-      setEmotions(data);
-      setStatus("Data Loaded");
-      const emotion = [
-        "anger",
-        "boredom",
-        "empty",
-        "enthusiasm",
-        "fun",
-        "happiness",
-        "hate",
-        "love",
-        "neutral",
-        "relief",
-        "sadness",
-        "suprise",
-        "worry",
-      ];
-    }
-  };
+    setEmotions(data);
+    setStatus("Data Loaded");
+    const emotion = [
+      "anger",
+      "boredom",
+      "empty",
+      "enthusiasm",
+      "fun",
+      "happiness",
+      "hate",
+      "love",
+      "neutral",
+      "relief",
+      "sadness",
+      "suprise",
+      "worry",
+    ];
+  }
 
   return (
     <div className="">
@@ -140,7 +136,7 @@ export const UserInput = (props: {
             <div
               key={index}
               className="radial-progress m-8 text-primary"
-              style={{ "--value": intensity } as React.CSSProperties}
+              style={{ "--value": intensity, "--size": "5rem" } as React.CSSProperties}
             >
               {emotion} | {intensity}
             </div>

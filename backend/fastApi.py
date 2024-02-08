@@ -3,6 +3,9 @@
 # Description: This file contains the API for the emotion detection model
 import emotionPrediction
 
+#For data analysis
+import pandas as pd
+
 # import all the libraries needed for JWT
 from typing import Annotated
 from datetime import datetime, timedelta, timezone
@@ -98,23 +101,6 @@ def decodeJWTToken(token):
         return "invalid"
 
 
-@app.post("/ai/analysis")
-def overallAnalysis(username: str):
-    cursor = connection.cursor()
-    cursor.execute(f"SELECT analysis FROM entries WHERE username = '{username}'")
-    retrieved = cursor.fetchall()
-    newdict = {}
-    for item in retrieved:
-        actuallyParsed = json.loads(item[0])
-        for currentemotion in arrayOfEmotions:
-            newdict[currentemotion] = (
-                newdict.get(currentemotion, 0) + actuallyParsed[currentemotion]
-            )
-    for i in range(0, len(newdict)):
-        newdict[arrayOfEmotions[i]] = newdict[arrayOfEmotions[i]] / 5
-    return newdict
-
-
 # authenicate user. Returns true if both the username and password match, false otherwise
 @app.post("/auth/login")
 def authLogin(
@@ -163,6 +149,8 @@ def authSignUp(
 def createEntry(text: Annotated[str, Form()], token: Annotated[str, Form()]):
     cursor = connection.cursor()
     decodedToken = decodeJWTToken(token)
+    if decodedToken == "expired" or decodedToken == "invalid":
+        return {"error": "Invalid token"}
     username = decodedToken["username"]
     query = "SELECT username FROM credentials WHERE username = %s"
     cursor.execute(query, (username,))
@@ -175,9 +163,30 @@ def createEntry(text: Annotated[str, Form()], token: Annotated[str, Form()]):
         jsonifiedPredictionData = json.dumps(proccessedPredictionData)
         newID = randint(0, 100000)
         # combine the random id with the current time to create a unique id
-        query = "INSERT into entries (entryID, username, context, analysis) VALUES (%s, %s, %s, %s)"
+        query = "INSERT into entries (entryID, username, context, analysis, timeanddate) VALUES (%s, %s, %s, %s, NOW())"
         values = (newID, username, text, jsonifiedPredictionData)
         cursor.execute(query, values)
         connection.commit()
         cursor.close()
         return proccessedPredictionData
+
+@app.post("/ai/analysis")
+def overallAnalysis(token: Annotated[str, Form()]):
+    if decodeJWTToken(token) == "expired" or decodeJWTToken(token) == "invalid":
+        return {"error": "Invalid token"}
+    username = decodeJWTToken(token)["username"]
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT analysis, timeanddate FROM entries WHERE username = '{username}'")
+    retrieved = cursor.fetchall()
+    newdict = {}
+    for item in retrieved:
+        actuallyParsed = json.loads(item[0])
+        print(pd.to_datetime(item[1]))
+        print(type(pd.to_datetime(item[1])))
+        for currentemotion in arrayOfEmotions:
+            newdict[currentemotion] = (
+                newdict.get(currentemotion, 0) + actuallyParsed[currentemotion]
+            )
+    for i in range(0, len(newdict)):
+        newdict[arrayOfEmotions[i]] = newdict[arrayOfEmotions[i]] / len(retrieved)
+    return newdict
