@@ -172,21 +172,24 @@ def createEntry(text: Annotated[str, Form()], token: Annotated[str, Form()]):
 
 @app.post("/ai/analysis")
 def overallAnalysis(token: Annotated[str, Form()]):
-    if decodeJWTToken(token) == "expired" or decodeJWTToken(token) == "invalid":
+    decodedToken = decodeJWTToken(token)
+    if decodedToken == "expired" or decodedToken == "invalid":
+        #cursor.close()
         return {"error": "Invalid token"}
-    username = decodeJWTToken(token)["username"]
+    username = decodedToken["username"]
     cursor = connection.cursor()
-    cursor.execute(f"SELECT analysis, timeanddate FROM entries WHERE username = '{username}'")
+    cursor.execute("SELECT analysis, timeanddate FROM entries WHERE username = %s", (username, ))
     retrieved = cursor.fetchall()
-    newdict = {}
+    emotionData = {}
+    for i in arrayOfEmotions:
+        emotionData[i] = []
+    emotionData["timeframe"] = []    
     for item in retrieved:
-        actuallyParsed = json.loads(item[0])
-        print(item[1])
-        print(type(item[1]))
-        for currentemotion in arrayOfEmotions:
-            newdict[currentemotion] = (
-                newdict.get(currentemotion, 0) + actuallyParsed[currentemotion]
-            )
-    for i in range(0, len(newdict)):
-        newdict[arrayOfEmotions[i]] = newdict[arrayOfEmotions[i]] / len(retrieved)
-    return newdict
+        emotionData["timeframe"].append(item[1])
+        retrievedEmotionData = json.loads(item[0])
+        for i in retrievedEmotionData:
+            emotionData[i].append(retrievedEmotionData[i])
+    cursor.close()
+    return emotionData
+
+        

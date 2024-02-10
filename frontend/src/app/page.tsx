@@ -1,7 +1,8 @@
 "use client"
 import { useState } from 'react';
-import { UserInput }from '../components/userInput'
+import { UserInput }from '@/components/userInput'
 import { LoginSystem } from '@/components/loginSystem'
+import { Analysis } from '@/components/analysis'
 
 export default function Home() {
   const [usrName, setUserName] = useState<string|null>(typeof localStorage !== 'undefined' ? localStorage.getItem('username') : "");
@@ -18,6 +19,7 @@ export default function Home() {
         Please enter some text and click the button to predict the emotion of the text.
       </p>
       <UserInput userName={usrName} token={token} />
+      <Analysis token={token} />
       <p className='text-center'>
         All code is property of The Maroon Hat Hacker, if you find this.... honestly well done.
       </p>

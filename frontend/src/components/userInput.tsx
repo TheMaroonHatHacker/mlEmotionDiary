@@ -122,9 +122,6 @@ export const UserInput = (props: {
         <button className="btn btn-primary join-item" onClick={handlePredict}>
           Predict Emotion
         </button>
-        <button className="btn btn-primary join-item" onClick={handleAnalysis}>
-          Analysis
-        </button>
       </div>
       <div className="text-center justify-center m-8">
         <p>{status}</p>
