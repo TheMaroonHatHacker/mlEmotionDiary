@@ -54,7 +54,7 @@ export const UserInput = (props: {
     const form = new FormData();
     form.append("text", inputText);
     form.append("token", usrToken);
-    const response = await fetch(`http://127.0.0.1:8000/ai/predict`, {
+    const response = await fetch(`http://127.0.0.1:8000/ai/prediction`, {
       method: "POST",
       body: form,
     });
@@ -77,39 +77,6 @@ export const UserInput = (props: {
       "worry",
     ];
   };
-
-  const handleAnalysis = async () => {
-    
-    if (usrName === null || usrToken === null) {
-      setStatus("please login to use this feature");
-      return;
-    }
-    setStatus("loading...");
-    const form = new FormData();
-    form.append("token", usrToken);
-    const response = await fetch(`http://127.0.0.1:8000/ai/analysis`, {
-      method: "POST",
-      body: form,
-    });
-    const data = await response.json();
-    setEmotions(data);
-    setStatus("Data Loaded");
-    const emotion = [
-      "anger",
-      "boredom",
-      "empty",
-      "enthusiasm",
-      "fun",
-      "happiness",
-      "hate",
-      "love",
-      "neutral",
-      "relief",
-      "sadness",
-      "suprise",
-      "worry",
-    ];
-  }
 
   return (
     <div className="">

@@ -45,6 +45,7 @@ connection = mysql.connector.connect(
     autocommit=True,
 )
 
+# create a list of all the emotions that the model can detect.
 arrayOfEmotions = [
     "fun",
     "hate",
@@ -63,7 +64,7 @@ arrayOfEmotions = [
 
 # initialize the FastAPI app
 app = FastAPI()
-origins = ["*"]
+origins = ["*"] # allow all origins
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -72,7 +73,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+# These functions are used for hashing and producing JWT tokens. They are used for authentication. May move them to a different file in the future.
 def hashThePassword(password):
     return hashpw(password.encode("utf-8"), gensalt()).decode("utf-8")
 
@@ -104,48 +105,48 @@ def decodeJWTToken(token):
 # authenicate user. Returns true if both the username and password match, false otherwise
 @app.post("/auth/login")
 def authLogin(
-    username: Annotated[str, Form()], password: Annotated[str, Form()], res: Response
+    username: Annotated[str, Form()], password: Annotated[str, Form()]
 ):
     cursor = connection.cursor()
-    cursor.execute("SELECT password FROM credentials WHERE username = %s", (username,))
+    cursor.execute("SELECT password FROM credentials WHERE username = %s", (username,)) # get the hashed password
     record = cursor.fetchone()
     cursor.close()
     if record is None:
+        return {"auth": False, "token": None} # if the username does not exist, return false
+    hashed_password = record[0] # get the hashed password from the returned record
+    success = checkPassword(password, hashed_password)  # check if the password matches the hashed password
+    if not success: # if the password does not match, return false
         return {"auth": False, "token": None}
-    hashed_password = record[0]
-    success = checkPassword(password, hashed_password)
-    if not success:
-        return {"auth": False, "token": None}
-    return {"auth": success, "token": createJWTToken(username)}
+    return {"auth": success, "token": createJWTToken(username)} # if the password matches, return true and a token
 
 
 # create a new user
-@app.post("/auth/signup")
+@app.post("/auth/signup") # declaring the API route
 def authSignUp(
-    username: Annotated[str, Form()], password: Annotated[str, Form()], res: Response
+    username: Annotated[str, Form()], password: Annotated[str, Form()]
 ):
-    hashed = hashThePassword(password)
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM credentials WHERE username = %s", (username,))
-    if cursor.fetchone() is None:
+    hashed = hashThePassword(password) # hash the password
+    cursor = connection.cursor() 
+    cursor.execute("SELECT * FROM credentials WHERE username = %s", (username,)) # check if the username already exists
+    if cursor.fetchone() is None: # if the username does not exist, create a new entry
         try:
             cursor.execute(
                 "INSERT INTO credentials (username, password) VALUES (%s, %s)",
                 (username, hashed),
-            )
+            ) # insert the new user into the database
             connection.commit()
-            success = True
-        except Exception as e:
-            print(e)  # or log the error
-            success = False
+            success = True # return true if the user was created
+        except Exception as e: # if there is an error, return false
+            print(e)  # print the error
+            success = False # return false
     else:
-        success = False
-    cursor.close()
-    return {"auth": success}
+        success = False # if the username already exists, return false
+    cursor.close() # close the cursor
+    return {"auth": success} # return the result of the operation
 
 
 # Create a new entry
-@app.post("/ai/predict")
+@app.post("/ai/prediction") # declare the API route
 def createEntry(text: Annotated[str, Form()], token: Annotated[str, Form()]):
     cursor = connection.cursor()
     decodedToken = decodeJWTToken(token)
