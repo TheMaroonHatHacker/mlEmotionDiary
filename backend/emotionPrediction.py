@@ -1,7 +1,6 @@
 # Importing the libraries
 import joblib
 # import numpy as np
-import neattext.functions as neattxt
 # Loading the model
 theModel = joblib.load(open("./models/emotion_classifier_pipe_rf.pkl", "rb"))
 
