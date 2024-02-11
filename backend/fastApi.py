@@ -74,6 +74,8 @@ app.add_middleware(
 )
 
 # These functions are used for hashing and producing JWT tokens. They are used for authentication. May move them to a different file in the future.
+
+# reimplment password hashing to be more stateful?
 def hashThePassword(password):
     return hashpw(password.encode("utf-8"), gensalt()).decode("utf-8")
 
@@ -133,64 +135,63 @@ def authSignUp(
             cursor.execute(
                 "INSERT INTO credentials (username, password) VALUES (%s, %s)",
                 (username, hashed),
-            ) # insert the new user into the database
-            connection.commit()
+            ) 
             success = True # return true if the user was created
         except Exception as e: # if there is an error, return false
-            print(e)  # print the error
-            success = False # return false
+            print(e)  
+            success = False
     else:
         success = False # if the username already exists, return false
     cursor.close() # close the cursor
-    return {"auth": success} # return the result of the operation
+    return {"auth": success}
 
 
 # Create a new entry
 @app.post("/ai/prediction") # declare the API route
 def createEntry(text: Annotated[str, Form()], token: Annotated[str, Form()]):
     cursor = connection.cursor()
-    decodedToken = decodeJWTToken(token)
-    if decodedToken == "expired" or decodedToken == "invalid":
+    decodedToken = decodeJWTToken(token) # decode the token
+    if decodedToken == "expired" or decodedToken == "invalid": # if the token is expired or invalid, return an error
         return {"error": "Invalid token"}
-    username = decodedToken["username"]
-    query = "SELECT username FROM credentials WHERE username = %s"
-    cursor.execute(query, (username,))
-    record = cursor.fetchone()
-    if record is None:
-        return {"error": "User does not exist"}
+    username = decodedToken["username"] # get the username from the token
+    query = "SELECT username FROM credentials WHERE username = %s" # check if the user exists
+    cursor.execute(query, (username,)) # execute the query
+    record = cursor.fetchone() # get the result of the query
+    if record is None: # if the user does not exist, return an error
+        return {"error": "User does not exist"} 
     else:
-        rawPredictionData = emotionPrediction.getPredictionProbability(text)
-        proccessedPredictionData = rawPredictionData
-        jsonifiedPredictionData = json.dumps(proccessedPredictionData)
+        rawPredictionData = emotionPrediction.getPredictionProbability(text) # get the prediction data
+        proccessedPredictionData = rawPredictionData 
+        jsonifiedPredictionData = json.dumps(proccessedPredictionData)  # convert the prediction data from a dictionary to a json string
         newID = randint(0, 100000)
         # combine the random id with the current time to create a unique id
-        query = "INSERT into entries (entryID, username, context, analysis, timeanddate) VALUES (%s, %s, %s, %s, NOW())"
-        values = (newID, username, text, jsonifiedPredictionData)
-        cursor.execute(query, values)
-        connection.commit()
-        cursor.close()
-        return proccessedPredictionData
+        query = "INSERT into entries (entryID, username, context, analysis, timeanddate) VALUES (%s, %s, %s, %s, NOW())" # create the query 
+        values = (newID, username, text, jsonifiedPredictionData) # create the values to be inserted
+        cursor.execute(query, values) # execute the query
+         # commit the changes
+        cursor.close() # close the cursor
+        return proccessedPredictionData # return the prediction data
 
 @app.post("/ai/analysis")
 def overallAnalysis(token: Annotated[str, Form()]):
-    decodedToken = decodeJWTToken(token)
-    if decodedToken == "expired" or decodedToken == "invalid":
+    decodedToken = decodeJWTToken(token) # decode the token
+    if decodedToken == "expired" or decodedToken == "invalid": # if the token is expired or invalid, return an error
         #cursor.close()
         return {"error": "Invalid token"}
-    username = decodedToken["username"]
-    cursor = connection.cursor()
-    cursor.execute("SELECT analysis, timeanddate FROM entries WHERE username = %s", (username, ))
-    retrieved = cursor.fetchall()
-    emotionData = {}
+    username = decodedToken["username"] # get the username from the token
+    cursor = connection.cursor() # create a cursor
+    cursor.execute("SELECT analysis, timeanddate FROM entries WHERE username = %s", (username, )) # get the analysis data for the user
+    retrieved = cursor.fetchall() # get the result of the query
+    emotionData = {} # create a dictionary to store the data
     for i in arrayOfEmotions:
-        emotionData[i] = []
-    emotionData["timeframe"] = []    
-    for item in retrieved:
-        emotionData["timeframe"].append(item[1])
-        retrievedEmotionData = json.loads(item[0])
+        emotionData[i] = [] # create a list for each emotion
+    emotionData["timeframe"] = [] # create a list for the timeframe
+    for item in retrieved: 
+        emotionData["timeframe"].append(item[1]) # add the time and date to the timeframe list
+        retrievedEmotionData = json.loads(item[0]) # get the analysis data
         for i in retrievedEmotionData:
-            emotionData[i].append(retrievedEmotionData[i])
+            emotionData[i].append(retrievedEmotionData[i]) # add the analysis data to the dictionary
     cursor.close()
-    return emotionData
+    return emotionData # return the analysis data
 
         

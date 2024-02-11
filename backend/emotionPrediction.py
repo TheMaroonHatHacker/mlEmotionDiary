@@ -7,15 +7,6 @@ theModel = joblib.load(open("./models/emotion_classifier_pipe_rf.pkl", "rb"))
 
 
 # Takes input from the user and returns one dominant emotion as a string
-def predictEmotions(input_text):
-    input_text = neattxt.remove_userhandles(input_text)
-    input_text = neattxt.remove_puncts(input_text)
-    input_text = neattxt.remove_urls(input_text)
-    input_text = neattxt.remove_special_characters(input_text)
-    results = theModel.predict([input_text])[0]
-
-    return results
-
 
 # Takes input from the user and returns the probabilities of all the emotions as a list
 def getPredictionProbability(input_text):  # input_text is a list of strings
