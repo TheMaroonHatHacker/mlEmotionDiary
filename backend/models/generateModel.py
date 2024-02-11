@@ -14,9 +14,9 @@ import joblib  # saving model
 
 importedSentimentData = pd.read_csv("./data/tweet_emotions.csv")  # importing data
 importBinaryData = "";
-importedSentimentData = importedSentimentData.drop(
-    ["tweet_id"], axis=1
-)  # dropping tweet_id column since it is not needed
+#importedSentimentData = importedSentimentData.drop(
+#    ["tweet_id"], axis=1
+#)  # dropping tweet_id column since it is not needed
 
 # now to clean the data
 importedSentimentData["refined_text"] = importedSentimentData["content"].apply(
