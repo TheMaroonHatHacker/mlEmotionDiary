@@ -43,7 +43,7 @@ cleanedData_train, cleanedData_test, labels_train, labels_test = train_test_spli
 )  # splitting the data into training and testing data
 
 rfPipeline = Pipeline(
-    [("vectorizer", CountVectorizer()), ("model", LinearRegression())]
+    [("vectorizer", CountVectorizer()), ("model", RandomForestClassifier())]
 )  # creating a pipeline with a vectorizer and a model
 rfPipeline.fit(
     cleanedData_train, labels_train
