@@ -7,8 +7,6 @@ from dbInterface import dbInterface
 
 # import all the libraries needed for JWT
 from typing import Annotated
-from datetime import datetime, timedelta
-from jose import jwt, JWTError, ExpiredSignatureError
 from bcrypt import hashpw, gensalt, checkpw
 
 # import random
@@ -69,17 +67,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-host = os.getenv("DB_HOST")
-user = os.getenv("DB_USERNAME")
-password = os.getenv("DB_PASSWORD")
-database = os.getenv("DB_NAME")
-autocommit = True
 
+connection = mysql.connector.connect(
+    host=os.getenv("DB_HOST"),
+    user=os.getenv("DB_USERNAME"),
+    password=os.getenv("DB_PASSWORD"),
+    database=os.getenv("DB_NAME"),
+    autocommit=True
+)
 
 
 # create the JWT handler and the database interfacez
 jwtHandle = jwtHandler(os.getenv("JWT_SECRET"))
-dbHandle = dbInterface(host, user, password, database)
+dbHandle = dbInterface(connection)
 
 # reimplment password hashing to be more stateful?
 def hashThePassword(password):
@@ -96,9 +96,7 @@ def decodePassword(password):
 
 # authenicate user. Returns true if both the username and password match, false otherwise
 @app.post("/auth/login")
-def authLogin(
-    username: Annotated[str, Form()], password: Annotated[str, Form()]
-):
+def authLogin(username: Annotated[str, Form()], password: Annotated[str, Form()]):
     record = dbHandle.checkUserPresence(username) # check if the username exists
     if record is None:
         return {"auth": False, "token": None} # if the username does not exist, return false
@@ -111,25 +109,18 @@ def authLogin(
 
 # create a new user
 @app.post("/auth/signup") # declaring the API route
-def authSignUp(
-    username: Annotated[str, Form()], password: Annotated[str, Form()]
-):
+def authSignUp(username: Annotated[str, Form()], password: Annotated[str, Form()]):
     hashed = hashThePassword(password) # hash the password
-    cursor = connection.cursor() 
-    cursor.execute("SELECT * FROM credentials WHERE username = %s", (username,)) # check if the username already exists
-    if cursor.fetchone() is None: # if the username does not exist, create a new entry
+    userpassword = dbHandle.checkUserPresence(username) # check if the username already exists
+    if userpassword is None: # if the username does not exist, create a new entry
         try:
-            cursor.execute(
-                "INSERT INTO credentials (username, password) VALUES (%s, %s)",
-                (username, hashed),
-            ) 
+            dbHandle.createUser(username, hashed) # create the user 
             success = True # return true if the user was created
         except Exception as e: # if there is an error, return false
             print(e)  
             success = False
     else:
         success = False # if the username already exists, return false
-    cursor.close() # close the cursor
     return {"auth": success}
 
 
