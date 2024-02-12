@@ -18,7 +18,7 @@ class dbInterface:
     def checkUserPresence(self, username):
         cursor = self.connection.cursor()
         cursor.execute("SELECT password FROM credentials WHERE username = %s", (username,))
-        result = cursor.fetchall()
+        result = cursor.fetchone()
         cursor.close()
         return result
     def checkUserAndPass(self, username, password):

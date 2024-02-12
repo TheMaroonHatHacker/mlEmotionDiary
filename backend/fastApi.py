@@ -14,6 +14,7 @@ from bcrypt import hashpw, gensalt, checkpw
 # import random
 from random import randint
 
+
 import os
 
 # import FastAPI
@@ -36,11 +37,7 @@ load_dotenv()
 
 # connect to the database
 
-host=os.getenv("DB_HOST"),
-user=os.getenv("DB_USERNAME"),
-password=os.getenv("DB_PASSWORD"),
-database=os.getenv("DB_NAME"),
-autocommit=True
+
 
 
 
@@ -71,6 +68,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+host = os.getenv("DB_HOST")
+user = os.getenv("DB_USERNAME")
+password = os.getenv("DB_PASSWORD")
+database = os.getenv("DB_NAME")
+autocommit = True
+
+
 
 # create the JWT handler and the database interfacez
 jwtHandle = jwtHandler(os.getenv("JWT_SECRET"))

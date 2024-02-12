@@ -13,7 +13,7 @@ class jwtHandler:
         
 
     def createJWTToken(self, username):
-        if username is not str:
+        if username is None:
             raise ValueError("Username was not supplied.")
         token = jwt.encode(
             {"exp": datetime.utcnow() + timedelta(minutes=30), "username": username},
