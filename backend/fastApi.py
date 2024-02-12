@@ -132,22 +132,16 @@ def processEntry(text: Annotated[str, Form()], token: Annotated[str, Form()]):
     if decodedToken == "expired" or decodedToken == "invalid": # if the token is expired or invalid, return an error
         return {"error": "Invalid token"}
     username = decodedToken["username"] # get the username from the token
-    query = "SELECT username FROM credentials WHERE username = %s" # check if the user exists
-    cursor.execute(query, (username,)) # execute the query
-    record = cursor.fetchone() # get the result of the query
+    record = dbHandle.checkUserPresence(username) # check if the user exists
     if record is None: # if the user does not exist, return an error
         return {"error": "User does not exist"} 
     else:
         rawPredictionData = emotionPrediction.getPredictionProbability(text) # get the prediction data
         proccessedPredictionData = rawPredictionData 
         jsonifiedPredictionData = json.dumps(proccessedPredictionData)  # convert the prediction data from a dictionary to a json string
-        newID = randint(0, 100000)
-        # combine the random id with the current time to create a unique id
-        query = "INSERT into entries (entryID, username, context, analysis, timeanddate) VALUES (%s, %s, %s, %s, NOW())" # create the query 
-        values = (newID, username, text, jsonifiedPredictionData) # create the values to be inserted
-        cursor.execute(query, values) # execute the query
+        dbHandle.createEntry(username, text, jsonifiedPredictionData) # create a new entry in the database
+         # execute the query
          # commit the changes
-        cursor.close() # close the cursor
         return proccessedPredictionData # return the prediction data
 
 @app.post("/ai/analysis")
@@ -157,9 +151,7 @@ def overallAnalysis(token: Annotated[str, Form()]):
         #cursor.close()
         return {"error": "Invalid token"}
     username = decodedToken["username"] # get the username from the token
-    cursor = connection.cursor() # create a cursor
-    cursor.execute("SELECT analysis, timeanddate FROM entries WHERE username = %s", (username, )) # get the analysis data for the user
-    retrieved = cursor.fetchall() # get the result of the query
+    retrieved = dbHandle.getAnalysis(username)
     emotionData = {} # create a dictionary to store the data
     for i in arrayOfEmotions:
         emotionData[i] = [] # create a list for each emotion
@@ -169,7 +161,6 @@ def overallAnalysis(token: Annotated[str, Form()]):
         retrievedEmotionData = json.loads(item[0]) # get the analysis data
         for i in retrievedEmotionData:
             emotionData[i].append(retrievedEmotionData[i]) # add the analysis data to the dictionary
-    cursor.close()
     return emotionData # return the analysis data
 
         

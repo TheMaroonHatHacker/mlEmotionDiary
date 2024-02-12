@@ -54,7 +54,7 @@ export const UserInput = (props: {
     const form = new FormData();
     form.append("text", inputText);
     form.append("token", usrToken);
-    const response = await fetch(`http://127.0.0.1:8000/ai/prediction`, {
+    const response = await fetch(`http://127.0.0.1:8000/ai/entry`, {
       method: "POST",
       body: form,
     });

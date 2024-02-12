@@ -26,7 +26,7 @@ class jwtHandler:
             payload = jwt.decode(token, self.secret, algorithms=["HS256"])
             return payload
         except ExpiredSignatureError:
-            return "Token signature has expired"
+            return "expired"
         except JWTError:
-            return "Invalid Token"
+            return "invalid"
 
