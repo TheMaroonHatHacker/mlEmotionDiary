@@ -6,10 +6,11 @@ import emotionPrediction
 #For data analysis
 import pandas as pd
 
+from jwthandler import jwtHandler
+
 # import all the libraries needed for JWT
 from typing import Annotated
-from datetime import datetime, timedelta, timezone
-from passlib.context import CryptContext
+from datetime import datetime, timedelta
 from jose import jwt, JWTError, ExpiredSignatureError
 from bcrypt import hashpw, gensalt, checkpw
 
@@ -75,6 +76,8 @@ app.add_middleware(
 
 # These functions are used for hashing and producing JWT tokens. They are used for authentication. May move them to a different file in the future.
 
+jwtHandle = jwtHandler()
+
 # reimplment password hashing to be more stateful?
 def hashThePassword(password):
     return hashpw(password.encode("utf-8"), gensalt()).decode("utf-8")
@@ -86,22 +89,6 @@ def checkPassword(password, hashed):
 
 def decodePassword(password):
     return password.decode("utf-8")
-
-def createJWTToken(username):
-    token = jwt.encode(
-        {"exp": datetime.utcnow() + timedelta(minutes=30), "username": username},
-        os.getenv("JWT_SECRET"),
-        algorithm="HS256",
-    )
-    return token
-def decodeJWTToken(token):
-    try:
-        payload = jwt.decode(token, os.getenv("JWT_SECRET"), algorithms=["HS256"])
-        return payload
-    except ExpiredSignatureError:
-        return "expired"
-    except JWTError:
-        return "invalid"
 
 
 # authenicate user. Returns true if both the username and password match, false otherwise
@@ -119,7 +106,7 @@ def authLogin(
     success = checkPassword(password, hashed_password)  # check if the password matches the hashed password
     if not success: # if the password does not match, return false
         return {"auth": False, "token": None}
-    return {"auth": success, "token": createJWTToken(username)} # if the password matches, return true and a token
+    return {"auth": success, "token": jwtHandle.createJWTToken(username)} # if the password matches, return true and a token
 
 
 # create a new user
@@ -150,7 +137,7 @@ def authSignUp(
 @app.post("/ai/prediction") # declare the API route
 def createEntry(text: Annotated[str, Form()], token: Annotated[str, Form()]):
     cursor = connection.cursor()
-    decodedToken = decodeJWTToken(token) # decode the token
+    decodedToken = jwtHandle.decodeJWTToken(token) # decode the token
     if decodedToken == "expired" or decodedToken == "invalid": # if the token is expired or invalid, return an error
         return {"error": "Invalid token"}
     username = decodedToken["username"] # get the username from the token
@@ -174,7 +161,7 @@ def createEntry(text: Annotated[str, Form()], token: Annotated[str, Form()]):
 
 @app.post("/ai/analysis")
 def overallAnalysis(token: Annotated[str, Form()]):
-    decodedToken = decodeJWTToken(token) # decode the token
+    decodedToken = jwtHandle.decodeJWTToken(token) # decode the token
     if decodedToken == "expired" or decodedToken == "invalid": # if the token is expired or invalid, return an error
         #cursor.close()
         return {"error": "Invalid token"}
