@@ -1,12 +1,9 @@
 """Rewrite of the API to all use one file. This file will be used to run the API on the server."""
 
-# Description: This file contains the API for the emotion detection model
+# Import user defined modules
 import emotionPrediction
-
-#For data analysis
-import pandas as pd
-
 from jwthandler import jwtHandler
+from dbInterface import dbInterface
 
 # import all the libraries needed for JWT
 from typing import Annotated
@@ -38,13 +35,14 @@ import json
 load_dotenv()
 
 # connect to the database
-connection = mysql.connector.connect(
-    host=os.getenv("DB_HOST"),
-    user=os.getenv("DB_USERNAME"),
-    password=os.getenv("DB_PASSWORD"),
-    database=os.getenv("DB_NAME"),
-    autocommit=True,
-)
+
+host=os.getenv("DB_HOST"),
+user=os.getenv("DB_USERNAME"),
+password=os.getenv("DB_PASSWORD"),
+database=os.getenv("DB_NAME"),
+autocommit=True
+
+
 
 # create a list of all the emotions that the model can detect.
 arrayOfEmotions = [
@@ -74,9 +72,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# These functions are used for hashing and producing JWT tokens. They are used for authentication. May move them to a different file in the future.
-
-jwtHandle = jwtHandler()
+# create the JWT handler and the database interfacez
+jwtHandle = jwtHandler(os.getenv("JWT_SECRET"))
+dbHandle = dbInterface(host, user, password, database)
 
 # reimplment password hashing to be more stateful?
 def hashThePassword(password):
@@ -96,10 +94,7 @@ def decodePassword(password):
 def authLogin(
     username: Annotated[str, Form()], password: Annotated[str, Form()]
 ):
-    cursor = connection.cursor()
-    cursor.execute("SELECT password FROM credentials WHERE username = %s", (username,)) # get the hashed password
-    record = cursor.fetchone()
-    cursor.close()
+    record = dbHandle.checkUserPresence(username) # check if the username exists
     if record is None:
         return {"auth": False, "token": None} # if the username does not exist, return false
     hashed_password = record[0] # get the hashed password from the returned record
@@ -134,8 +129,8 @@ def authSignUp(
 
 
 # Create a new entry
-@app.post("/ai/prediction") # declare the API route
-def createEntry(text: Annotated[str, Form()], token: Annotated[str, Form()]):
+@app.post("/ai/entry") # declare the API route
+def processEntry(text: Annotated[str, Form()], token: Annotated[str, Form()]):
     cursor = connection.cursor()
     decodedToken = jwtHandle.decodeJWTToken(token) # decode the token
     if decodedToken == "expired" or decodedToken == "invalid": # if the token is expired or invalid, return an error

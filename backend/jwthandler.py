@@ -6,11 +6,11 @@ from datetime import datetime, timedelta
 load_dotenv()
 
 class jwtHandler:
-    def __init__(self):
-        if os.getenv("JWT_SECRET") == None:
-            self.secret = os.getenv("JWT_SECRET")
-            if self.secret is None:
-                raise ValueError("JWT Secret environment variable missing.")
+    def __init__(self, secret):
+        self.secret = secret
+        if self.secret is None:
+            raise ValueError("Secret was not supplied.")
+        
 
     def createJWTToken(self, username):
         if username is not str:
