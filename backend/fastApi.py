@@ -4,6 +4,7 @@
 import emotionPrediction
 from jwthandler import jwtHandler
 from dbInterface import dbInterface
+from pwHash import pwHash
 
 # import all the libraries needed for JWT
 from typing import Annotated
@@ -80,6 +81,7 @@ connection = mysql.connector.connect(
 # create the JWT handler and the database interfacez
 jwtHandle = jwtHandler(os.getenv("JWT_SECRET"))
 dbHandle = dbInterface(connection)
+hashhandle = pwHash()
 
 # reimplment password hashing to be more stateful?
 def hashThePassword(password):
@@ -101,7 +103,7 @@ def authLogin(username: Annotated[str, Form()], password: Annotated[str, Form()]
     if record is None:
         return {"auth": False, "token": None} # if the username does not exist, return false
     hashed_password = record[0] # get the hashed password from the returned record
-    success = checkPassword(password, hashed_password)  # check if the password matches the hashed password
+    success = hashhandle.check(password, hashed_password)  # check if the password matches the hashed password
     if not success: # if the password does not match, return false
         return {"auth": False, "token": None}
     return {"auth": success, "token": jwtHandle.createJWTToken(username)} # if the password matches, return true and a token
@@ -110,7 +112,7 @@ def authLogin(username: Annotated[str, Form()], password: Annotated[str, Form()]
 # create a new user
 @app.post("/auth/signup") # declaring the API route
 def authSignUp(username: Annotated[str, Form()], password: Annotated[str, Form()]):
-    hashed = hashThePassword(password) # hash the password
+    hashed = hashhandle.hash(password) # hash the password
     userpassword = dbHandle.checkUserPresence(username) # check if the username already exists
     if userpassword is None: # if the username does not exist, create a new entry
         try:
@@ -140,8 +142,6 @@ def processEntry(text: Annotated[str, Form()], token: Annotated[str, Form()]):
         proccessedPredictionData = rawPredictionData 
         jsonifiedPredictionData = json.dumps(proccessedPredictionData)  # convert the prediction data from a dictionary to a json string
         dbHandle.createEntry(username, text, jsonifiedPredictionData) # create a new entry in the database
-         # execute the query
-         # commit the changes
         return proccessedPredictionData # return the prediction data
 
 @app.post("/ai/analysis")

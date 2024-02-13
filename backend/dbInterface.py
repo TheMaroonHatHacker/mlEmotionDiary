@@ -6,10 +6,13 @@ class dbInterface:
         self.connection = connection
     def checkUserPresence(self, username):
         cursor = self.connection.cursor()
-        cursor.execute("SELECT password FROM credentials WHERE username = %s", (username,))
-        result = cursor.fetchone()
-        cursor.close()
-        return result
+        try :
+            cursor.execute("SELECT * FROM credentials WHERE username = %s", (username,))
+            result = cursor.fetchone()
+            cursor.close()
+            return result
+        except:
+            return False
     
     def createUser(self, username, password):
         cursor = self.connection.cursor()
