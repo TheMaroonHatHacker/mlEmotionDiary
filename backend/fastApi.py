@@ -8,7 +8,6 @@ from pwHash import pwHash
 
 # import all the libraries needed for JWT
 from typing import Annotated
-from bcrypt import hashpw, gensalt, checkpw
 
 # import random
 from random import randint
@@ -84,16 +83,6 @@ dbHandle = dbInterface(connection)
 hashhandle = pwHash()
 
 # reimplment password hashing to be more stateful?
-def hashThePassword(password):
-    return hashpw(password.encode("utf-8"), gensalt()).decode("utf-8")
-
-
-def checkPassword(password, hashed):
-    return checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
-
-
-def decodePassword(password):
-    return password.decode("utf-8")
 
 
 # authenicate user. Returns true if both the username and password match, false otherwise
