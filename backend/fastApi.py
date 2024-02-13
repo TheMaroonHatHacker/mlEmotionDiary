@@ -102,7 +102,7 @@ def authLogin(username: Annotated[str, Form()], password: Annotated[str, Form()]
     record = dbHandle.checkUserPresence(username) # check if the username exists
     if record is None:
         return {"auth": False, "token": None} # if the username does not exist, return false
-    hashed_password = record[0] # get the hashed password from the returned record
+    hashed_password = record[1] # get the hashed password from the returned record
     success = hashhandle.check(password, hashed_password)  # check if the password matches the hashed password
     if not success: # if the password does not match, return false
         return {"auth": False, "token": None}
