@@ -1,6 +1,5 @@
 from jose import jwt, JWTError, ExpiredSignatureError
 from dotenv import load_dotenv
-import os
 from datetime import datetime, timedelta
 
 load_dotenv()

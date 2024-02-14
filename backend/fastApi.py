@@ -6,12 +6,7 @@ from jwthandler import jwtHandler
 from dbInterface import dbInterface
 from pwHash import pwHash
 
-# import all the libraries needed for JWT
 from typing import Annotated
-
-# import random
-from random import randint
-
 
 import os
 
