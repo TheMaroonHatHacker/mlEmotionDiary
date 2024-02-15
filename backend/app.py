@@ -5,6 +5,7 @@ from pwHash import pwHash
 
 import os
 from dotenv import load_dotenv
+import json
 
 import mysql.connector
 
@@ -61,5 +62,14 @@ def createEntry(username, emotion, text):
     return "success"
 
 def getAnalysis(username):
-    return dbHandle.getAnalysis(username)
-
+    retrieved = dbHandle.getAnalysis(username)
+    emotionData = {} # create a dictionary to store the data
+    for i in arrayOfEmotions:
+        emotionData[i] = [] # create a list for each emotion
+    emotionData["timeframe"] = [] # create a list for the timeframe
+    for item in retrieved: 
+        emotionData["timeframe"].append(item[1]) # add the time and date to the timeframe list
+        retrievedEmotionData = json.loads(item[0]) # get the analysis data
+        for i in retrievedEmotionData:
+            emotionData[i].append(retrievedEmotionData[i]) # add the analysis data to the dictionary
+    return emotionData
