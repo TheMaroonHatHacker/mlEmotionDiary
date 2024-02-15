@@ -41,14 +41,16 @@ def getAnalysisBeta (username):
     cursor.execute("SELECT entryID, timeanddate FROM entries WHERE username = %s", (username,))
     entries = cursor.fetchall()
     analysis = {}
+    analysis["timeframe"] = []
     for entry in entries:
         cursor.execute("SELECT emotionType, intensity FROM emotionEntries JOIN emotions ON emotionEntries.emotionID = emotions.emotionID WHERE entryID = %s", (entry[0],))
         emotions = cursor.fetchall()
+        analysis["timeframe"].append(datetime.strftime(entry[1], "%Y-%m-%d %H:%M:%S"))
         for emotion in emotions:
-            if datetime.strftime(entry[1], "%d/%m/%Y, %H:%M") in analysis:
-                analysis[datetime.strftime(entry[1])].append({emotion[0]: emotion[1]})
-            else:
-                analysis[datetime.strftime(entry[1])] = [{emotion[0]: emotion[1]}]
+            if emotion[0] not in analysis:
+                analysis[emotion[0]] = []
+            analysis[emotion[0]].append(emotion[1])
+            
     return analysis
 
 # Test the function
