@@ -125,7 +125,7 @@ def processEntry(text: Annotated[str, Form()], token: Annotated[str, Form()]):
         rawPredictionData = emotionPrediction.getPredictionProbability(text) # get the prediction data
         proccessedPredictionData = rawPredictionData 
         jsonifiedPredictionData = json.dumps(proccessedPredictionData)  # convert the prediction data from a dictionary to a json string
-        dbHandle.createEntry(username, text, jsonifiedPredictionData) # create a new entry in the database
+        dbHandle.createEntry(username, text, proccessedPredictionData) # create a new entry in the database
         return proccessedPredictionData # return the prediction data
 
 @app.post("/ai/analysis")
