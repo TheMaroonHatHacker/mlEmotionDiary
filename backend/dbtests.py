@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from random import randint
 from datetime import datetime, timedelta
+from datetime import datetime, timedelta
 
 load_dotenv()
 
@@ -52,6 +53,11 @@ def getAnalysisBeta (username):
             analysis[emotion[0]].append(emotion[1])
             
     return analysis
+def getMonthlyAnalysis(username):
+    currentDate = datetime.now()
+    cursor.execute("SELECT emotionType, intensity FROM emotionEntries JOIN emotions ON emotionEntries.emotionID = emotions.emotionID WHERE entries.username = %s", (username,))
+    emotions = cursor.fetchall()
+    return emotions    
 
 # Test the function
 print(addEntryBeta(username, context, emotions))

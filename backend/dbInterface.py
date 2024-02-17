@@ -31,18 +31,19 @@ class dbInterface:
     
     def getAnalysis(self, username):
         cursor = self.connection.cursor()
-        cursor.execute("SELECT entryID, timeanddate FROM entries WHERE username = %s", (username,))
-        entries = cursor.fetchall()
         analysis = {}
         analysis["timeframe"] = []
-        for entry in entries:
-            cursor.execute("SELECT emotionType, intensity FROM emotionEntries JOIN emotions ON emotionEntries.emotionID = emotions.emotionID WHERE entryID = %s", (entry[0],))
-            emotions = cursor.fetchall()
-            analysis["timeframe"].append(datetime.strftime(entry[1], "%Y-%m-%d %H:%M:%S"))
-            for emotion in emotions:
-                if emotion[0] not in analysis:
-                    analysis[emotion[0]] = []
-                analysis[emotion[0]].append(emotion[1])
+        cursor.execute("SELECT emotionType, intensity FROM emotionEntries JOIN emotions ON emotionEntries.emotionID = emotions.emotionID JOIN entries ON emotionEntries.entryID = entries.entryID  WHERE entries.username = %s", (username,))
+        emotions = cursor.fetchall()
+        for emotion in emotions:
+            print(emotion)
+            if emotion[0] not in analysis:
+                analysis[emotion[0]] = []
+            analysis[emotion[0]].append(emotion[1])
+        cursor.execute("SELECT timeanddate FROM entries WHERE username = %s", (username,))
+        time = cursor.fetchall()
+        for item in time:
+            analysis["timeframe"].append(datetime.strftime(item[0], "%Y-%m-%d %H:%M:%S"))
                 
         return analysis
     

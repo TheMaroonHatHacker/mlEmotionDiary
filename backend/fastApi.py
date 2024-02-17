@@ -136,15 +136,16 @@ def overallAnalysis(token: Annotated[str, Form()]):
         return {"error": "Invalid token"}
     username = decodedToken["username"] # get the username from the token
     retrieved = dbHandle.getAnalysis(username)
-    emotionData = {} # create a dictionary to store the data
-    for i in arrayOfEmotions:
-        emotionData[i] = [] # create a list for each emotion
-    emotionData["timeframe"] = [] # create a list for the timeframe
-    for item in retrieved: 
-        emotionData["timeframe"].append(item[1]) # add the time and date to the timeframe list
-        retrievedEmotionData = json.loads(item[0]) # get the analysis data
-        for i in retrievedEmotionData:
-            emotionData[i].append(retrievedEmotionData[i]) # add the analysis data to the dictionary
-    return emotionData # return the analysis data
+    #emotionData = {} # create a dictionary to store the data
+    #for i in arrayOfEmotions:
+    #    emotionData[i] = [] # create a list for each emotion
+    #emotionData["timeframe"] = [] # create a list for the timeframe
+    #for item in retrieved: 
+    #    emotionData["timeframe"].append(item[1]) # add the time and date to the timeframe list
+    #    retrievedEmotionData = json.loads(item[0]) # get the analysis data
+    #    for i in retrievedEmotionData:
+    #        emotionData[i].append(retrievedEmotionData[i]) # add the analysis data to the dictionary
+    print (retrieved)
+    return retrieved # return the analysis data
 
         

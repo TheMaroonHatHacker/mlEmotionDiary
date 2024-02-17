@@ -1,12 +1,12 @@
 "use client"
 import { useState } from 'react';
-import { UserInput }from '@/components/userInput'
+import { UserInput } from '@/components/userInput'
 import { LoginSystem } from '@/components/loginSystem'
 import { Analysis } from '@/components/analysis'
 
 export default function Home() {
-  const [usrName, setUserName] = useState<string|null>(typeof localStorage !== 'undefined' ? localStorage.getItem('username') : "");
-  const [token, setToken] = useState<string|null>(typeof localStorage !== 'undefined' ? localStorage.getItem('token') : "");
+  const [usrName, setUserName] = useState<string | null>(typeof localStorage !== 'undefined' ? localStorage.getItem('username') : "");
+  const [token, setToken] = useState<string | null>(typeof localStorage !== 'undefined' ? localStorage.getItem('token') : "");
   return (
     <main className="flex flex-col items-center justify-between p-24">
       <h1 className="text-6xl font-bold m-8">
@@ -20,9 +20,6 @@ export default function Home() {
       </p>
       <UserInput userName={usrName} token={token} />
       <Analysis token={token} />
-      <p className='text-center'>
-        All code is property of The Maroon Hat Hacker, if you find this.... honestly well done.
-      </p>
     </main>
   )
 }
