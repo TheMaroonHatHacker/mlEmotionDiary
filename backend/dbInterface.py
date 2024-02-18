@@ -32,18 +32,12 @@ class dbInterface:
     def getAnalysis(self, username):
         cursor = self.connection.cursor()
         analysis = {}
-        analysis["timeframe"] = []
-        cursor.execute("SELECT emotionType, intensity FROM emotionEntries JOIN emotions ON emotionEntries.emotionID = emotions.emotionID JOIN entries ON emotionEntries.entryID = entries.entryID  WHERE entries.username = %s", (username,))
-        emotions = cursor.fetchall()
-        for emotion in emotions:
-            print(emotion)
-            if emotion[0] not in analysis:
-                analysis[emotion[0]] = []
-            analysis[emotion[0]].append(emotion[1])
-        cursor.execute("SELECT timeanddate FROM entries WHERE username = %s", (username,))
-        time = cursor.fetchall()
-        for item in time:
-            analysis["timeframe"].append(datetime.strftime(item[0], "%Y-%m-%d %H:%M:%S"))
-                
+        cursor.execute("SELECT emotionType, AVG(intensity) AS avg_intensity, DATE_FORMAT(timeanddate, '%Y-%m') AS month FROM emotionEntries JOIN emotions ON emotionEntries.emotionID = emotions.emotionID JOIN entries ON emotionEntries.entryID = entries.entryID WHERE entries.username = %s GROUP BY emotionType, month", (username,))
+        monthlyAverages = cursor.fetchall()
+        for emotion, avgIntensity, month in monthlyAverages:
+            if emotion not in analysis:
+                analysis[emotion] = {}
+            analysis[emotion][month] = avgIntensity
         return analysis
+
     
