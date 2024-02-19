@@ -58,8 +58,8 @@ export const Analysis = (props: { token: string | null }) => {
         Analyze
       </button>
       <p>{status}</p>
-      <div className="h-screen">
-        <Chart type="line" data={chartData} />
+      <div className="h-screen" style={{height:"60vh",position:"relative", marginBottom:"1%", padding:"1%"}}>
+        <Chart type="line" data={chartData} options={{maintainAspectRatio: false}}/>
       </div>
     </div>
   );

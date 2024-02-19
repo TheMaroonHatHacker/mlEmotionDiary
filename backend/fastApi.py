@@ -11,7 +11,7 @@ from typing import Annotated
 import os
 
 # import FastAPI
-from fastapi import FastAPI, Form, Response, status
+from fastapi import FastAPI, Form
 from fastapi.middleware.cors import CORSMiddleware
 
 # Allow for the use of .env files
@@ -33,23 +33,6 @@ load_dotenv()
 
 
 
-
-# create a list of all the emotions that the model can detect.
-arrayOfEmotions = [
-    "fun",
-    "hate",
-    "love",
-    "anger",
-    "empty",
-    "worry",
-    "relief",
-    "boredom",
-    "neutral",
-    "sadness",
-    "surprise",
-    "happiness",
-    "enthusiasm",
-]
 
 # initialize the FastAPI app
 app = FastAPI()
@@ -76,8 +59,6 @@ connection = mysql.connector.connect(
 jwtHandle = jwtHandler(os.getenv("JWT_SECRET"))
 dbHandle = dbInterface(connection)
 hashhandle = pwHash()
-
-# reimplment password hashing to be more stateful?
 
 
 # authenicate user. Returns true if both the username and password match, false otherwise
@@ -117,35 +98,32 @@ def processEntry(text: Annotated[str, Form()], token: Annotated[str, Form()]):
     decodedToken = jwtHandle.decodeJWTToken(token) # decode the token
     if decodedToken == "expired" or decodedToken == "invalid": # if the token is expired or invalid, return an error
         return {"error": "Invalid token"}
-    username = decodedToken["username"] # get the username from the token
-    record = dbHandle.checkUserPresence(username) # check if the user exists
-    if record is None: # if the user does not exist, return an error
+    username = decodedToken["username"]
+    record = dbHandle.checkUserPresence(username)
+    if record is None:
         return {"error": "User does not exist"} 
     else:
-        rawPredictionData = emotionPrediction.getPredictionProbability(text) # get the prediction data
-        proccessedPredictionData = rawPredictionData 
-        jsonifiedPredictionData = json.dumps(proccessedPredictionData)  # convert the prediction data from a dictionary to a json string
-        dbHandle.createEntry(username, text, proccessedPredictionData) # create a new entry in the database
-        return proccessedPredictionData # return the prediction data
+        predictionData = emotionPrediction.getPredictionProbability(text)
+        dbHandle.createEntry(username, text, predictionData)
+        return predictionData
 
 @app.post("/ai/analysis")
 def overallAnalysis(token: Annotated[str, Form()]):
-    decodedToken = jwtHandle.decodeJWTToken(token) # decode the token
-    if decodedToken == "expired" or decodedToken == "invalid": # if the token is expired or invalid, return an error
-        #cursor.close()
+    decodedToken = jwtHandle.decodeJWTToken(token)
+    if decodedToken == "expired" or decodedToken == "invalid":
         return {"error": "Invalid token"}
-    username = decodedToken["username"] # get the username from the token
+    username = decodedToken["username"]
     retrieved = dbHandle.getAnalysis(username)
-    #emotionData = {} # create a dictionary to store the data
-    #for i in arrayOfEmotions:
-    #    emotionData[i] = [] # create a list for each emotion
-    #emotionData["timeframe"] = [] # create a list for the timeframe
-    #for item in retrieved: 
-    #    emotionData["timeframe"].append(item[1]) # add the time and date to the timeframe list
-    #    retrievedEmotionData = json.loads(item[0]) # get the analysis data
-    #    for i in retrievedEmotionData:
-    #        emotionData[i].append(retrievedEmotionData[i]) # add the analysis data to the dictionary
     print (retrieved)
-    return retrieved # return the analysis data
+    return retrieved
+
+@app.post("/ai/history")
+def textHistory(token: Annotated[str, Form()]):
+    decodedToken = jwtHandle.decodeJWTToken(token)
+    if decodedToken == "expired" or decodedToken == "invalid":
+        return {"error": "Invalid token"}
+    username = decodedToken["username"]
+    retrieved = dbHandle.getTextHistory(username)
+    return retrieved
 
         

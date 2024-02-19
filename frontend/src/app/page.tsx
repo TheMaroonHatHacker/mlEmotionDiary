@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { UserInput } from '@/components/userInput'
 import { LoginSystem } from '@/components/loginSystem'
 import { Analysis } from '@/components/analysis'
+import { History } from '@/components/history'
 
 export default function Home() {
   const [usrName, setUserName] = useState<string | null>(typeof localStorage !== 'undefined' ? localStorage.getItem('username') : "");
@@ -20,6 +21,7 @@ export default function Home() {
       </p>
       <UserInput userName={usrName} token={token} />
       <Analysis token={token} />
+      <History token={token} />
     </main>
   )
 }

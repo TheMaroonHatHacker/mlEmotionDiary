@@ -1,5 +1,5 @@
 from random import randint
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class dbInterface:
     def __init__(self, connection):
@@ -22,7 +22,7 @@ class dbInterface:
     def createEntry(self, username, context, emotions):
         cursor = self.connection.cursor()
         entryID = randint(0, 100000)
-        cursor.execute("INSERT INTO entries (entryID, username, text, timeanddate) VALUES (%s, %s, %s, NOW())", (entryID, username, context))
+        cursor.execute("INSERT INTO entries (entryID, username, text, timeanddate, inputString) VALUES (%s, %s, %s, NOW())", (entryID, username, context,))
         for emotion, value in emotions.items():
             cursor.execute("SELECT emotionID FROM emotions WHERE emotionType = %s", (emotion,))
             emotionID = cursor.fetchone()[0]
@@ -32,12 +32,17 @@ class dbInterface:
     def getAnalysis(self, username):
         cursor = self.connection.cursor()
         analysis = {}
-        cursor.execute("SELECT emotionType, AVG(intensity) AS avg_intensity, DATE_FORMAT(timeanddate, '%Y-%m') AS month FROM emotionEntries JOIN emotions ON emotionEntries.emotionID = emotions.emotionID JOIN entries ON emotionEntries.entryID = entries.entryID WHERE entries.username = %s GROUP BY emotionType, month", (username,))
+        analysis["timeframe"] = []
+        cursor.execute("SELECT emotionType, AVG(intensity) AS avg_intensity, DATE_FORMAT(timeanddate, '%Y-%m') AS month FROM emotionEntries JOIN emotions ON emotionEntries.emotionID = emotions.emotionID JOIN entries ON emotionEntries.entryID = entries.entryID WHERE entries.username = %s GROUP BY emotionType, month ORDER BY month ASC, emotionType ASC", (username,))
         monthlyAverages = cursor.fetchall()
         for emotion, avgIntensity, month in monthlyAverages:
             if emotion not in analysis:
-                analysis[emotion] = {}
-            analysis[emotion][month] = avgIntensity
+                analysis[emotion] = []
+            analysis[emotion].append(avgIntensity)
+            if month not in analysis["timeframe"]:
+                analysis["timeframe"].append(month)
         return analysis
-
-    
+    def getTextHistory(self, username):
+        cursor = self.connection.cursor()
+        cursor.execute("SELECT text, timeanddate FROM entries WHERE username = %s ORDER BY timeanddate DESC", (username,))
+        return cursor.fetchall()
