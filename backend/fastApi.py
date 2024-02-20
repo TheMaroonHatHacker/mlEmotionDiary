@@ -24,6 +24,8 @@ import mysql.connector
 # json handling
 import json
 
+from datetime import datetime
+
 
 # load the .env file
 load_dotenv()
@@ -124,6 +126,8 @@ def textHistory(token: Annotated[str, Form()]):
         return {"error": "Invalid token"}
     username = decodedToken["username"]
     retrieved = dbHandle.getTextHistory(username)
+    retrieved = [{"entryID":x[0], "timeanddate": datetime.strftime(x[1], "%d/%m/%Y, %H:%M:%S"), "text": x[2]} for x in retrieved]
+    print(retrieved)
     return retrieved
 
         

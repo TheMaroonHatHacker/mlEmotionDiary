@@ -13,12 +13,13 @@ export const History = (props: { token: string | null }) => {
     setStatus("loading...");
     const form = new FormData();
     form.append("token", usrToken);
-    const response = await fetch(`http://127.0.0,1:8000/ai/history`, {
+    const response = await fetch(`http://127.0.0.1:8000/ai/history`, {
       method: "POST",
       body: form,
     });
     const data = await response.json();
     setEntries(data);
+    console.log(data);
     setStatus("done");
   };
   return (
@@ -29,15 +30,15 @@ export const History = (props: { token: string | null }) => {
       <p>{status}</p>
       <div>
         {entries.map((entry: any) => (
-          <div key={entry.id} className="collapse bg-base-100">
-            <input type="radio" defaultChecked />
-            <div className="collapse-title text-xl">{entry.id}</div>
+          <div key={entry.entryID} className="collapse bg-base-100">
+            <input type="radio" />
+            <div className="collapse-title text-xl">{entry.timeanddate}</div>
             <div className="collapse-content">
               <p>{entry.text}</p>
-              <p>{entry.date}</p>
             </div>
           </div>
-        ))}
+        ))
+        }
       </div>
     </div>
   );
