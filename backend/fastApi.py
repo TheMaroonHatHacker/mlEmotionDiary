@@ -8,6 +8,7 @@ from pwHash import pwHash
 
 from typing import Annotated
 
+import ssl
 import os
 
 # import FastAPI
