@@ -18,6 +18,10 @@ export const History = (props: { token: string | null }) => {
       body: form,
     });
     const data = await response.json();
+    if (data.error) {
+      setStatus(data.error);
+      return;
+    }
     setEntries(data);
     console.log(data);
     setStatus("done");
