@@ -15,12 +15,15 @@ import os
 from fastapi import FastAPI, Form
 from fastapi.middleware.cors import CORSMiddleware
 
+
 # Allow for the use of .env files
 from dotenv import load_dotenv
 
 # mysql connection
 # import MySQLdb
 import mysql.connector
+import libsql_experimental as libsql
+
 
 # json handling
 import json
@@ -33,8 +36,8 @@ load_dotenv()
 
 # connect to the database
 
-
-
+tursourl = os.getenv("TURSO_DB_URL")
+tursoToken = os.getenv("TURSO_AUTH_TOKEN")
 
 
 # initialize the FastAPI app
@@ -57,7 +60,8 @@ connection = mysql.connector.connect(
     autocommit=True
 )
 
-
+conn = libsql.connect("emotion-user-data.db", sync_url=tursourl, auth_token=tursoToken)
+conn.sync()
 # create the JWT handler and the database interfacez
 jwtHandle = jwtHandler(os.getenv("JWT_SECRET"))
 dbHandle = dbInterface(connection)

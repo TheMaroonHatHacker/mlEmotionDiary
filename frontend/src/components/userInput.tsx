@@ -80,7 +80,7 @@ export const UserInput = (props: {
 
   return (
     <div className="">
-      <div className="justify-center items-center flex join join-horizontal">
+      <div className="justify-center items-center flex join join-vertical">
         <textarea
           className="textarea textarea-primary join-item"
           value={inputText}

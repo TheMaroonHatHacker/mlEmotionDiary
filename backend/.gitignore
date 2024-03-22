@@ -72,6 +72,9 @@ instance/
 #models
 *.pkl
 
+#database related shenanigans
+*.db
+
 # Sphinx documentation
 docs/_build/
 
