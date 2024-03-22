@@ -8,15 +8,15 @@ It's built using Python and Typescript.
 
 ## How to run?
 
-Currently that is a bit messy. The way I currently do it on my dev machine is open `frontend/` and `backend/` in two separate terminals, then in the `frontend/` folder run
-```bash
-pnpm dev
-```
-and in the `backend/` folder run
-```bash
-uvicorn fastAPI:app --reload
-```
-Even then, not guaranteed, I haven't really been able to get this running on any other machine than my own laptop, so still lots of work need to be done in streamlining this, however as I'm really only judged on code, not the actual deployed project, this is the bottom of my priority.
+For dev work, you'll need to install the dependancies.
+
+For the frontend, you'll need to run `pnpm install` in the `frontend` directory.
+
+For the backend, you'll need to run `pip install -r requirements.txt` in the `backend` directory.
+
+Then you can run the frontend with `pnpm dev` in the `frontend` directory and the backend with `uvicorn fastApi:app --reload` in the `backend` directory.
+
+You'll need to provide you're own .env file for the database connection.
 
 ## License?
 
