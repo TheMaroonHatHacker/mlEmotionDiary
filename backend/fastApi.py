@@ -4,6 +4,7 @@
 import emotionPrediction
 from jwthandler import jwtHandler
 from dbInterface import dbInterface
+from dbInterfaceLibsql import dbInterfaceLite as dbInterfaceLibsql
 from pwHash import pwHash
 
 from typing import Annotated
@@ -22,22 +23,13 @@ from dotenv import load_dotenv
 # mysql connection
 # import MySQLdb
 import mysql.connector
-import libsql_experimental as libsql
 
-
-# json handling
-import json
 
 from datetime import datetime
 
 
 # load the .env file
 load_dotenv()
-
-# connect to the database
-
-tursourl = os.getenv("TURSO_DB_URL")
-tursoToken = os.getenv("TURSO_AUTH_TOKEN")
 
 
 # initialize the FastAPI app
@@ -59,9 +51,6 @@ connection = mysql.connector.connect(
     database=os.getenv("DB_NAME"),
     autocommit=True
 )
-
-conn = libsql.connect("emotion-user-data.db", sync_url=tursourl, auth_token=tursoToken)
-conn.sync()
 # create the JWT handler and the database interfacez
 jwtHandle = jwtHandler(os.getenv("JWT_SECRET"))
 dbHandle = dbInterface(connection)
@@ -131,7 +120,7 @@ def textHistory(token: Annotated[str, Form()]):
         return {"error": "Invalid token"}
     username = decodedToken["username"]
     retrieved = dbHandle.getTextHistory(username)
-    retrieved = [{"entryID":x[0], "timeanddate": datetime.strftime(x[1], "%d/%m/%Y, %H:%M:%S"), "text": x[2]} for x in retrieved]
+    retrieved = [{"entryID":x[0], "timeanddate": x[1], "text": x[2]} for x in retrieved]
     print(retrieved)
     return retrieved
 

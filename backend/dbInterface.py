@@ -1,5 +1,4 @@
 from random import randint
-from datetime import datetime, timedelta
 
 class dbInterface:
     def __init__(self, connection):

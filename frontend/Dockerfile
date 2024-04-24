@@ -1,27 +1,37 @@
-# Install dependencies only when needed
-FROM node:18.13.0-alpine AS deps
-WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
+FROM mitchpash/pnpm AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /home/node/app
+COPY pnpm-lock.yaml .npmr[c] ./
+COPY package.json ./
+
 RUN pnpm install
 
+FROM mitchpash/pnpm AS builder
+WORKDIR /home/node/app
+COPY --from=deps /home/node/app/node_modules ./node_modules/
+COPY . .
+RUN pnpm config set store-dir /home/node/app/node_modules/.pnpm
+RUN pnpm install -r --offline
 
-
-FROM node:18.13.0-alpine AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-ADD . .
 RUN pnpm build
 
-FROM node:18.13.0-alpine AS runner
-WORKDIR /app
-RUN adduser --system --uid 1001 nextjs
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
+FROM mitchpash/pnpm AS runner
+WORKDIR /home/node/app
 
+ENV NODE_ENV production
 
-USER nextjs
+COPY --from=builder /home/node/app/next.config.js ./
+COPY --from=builder /home/node/app/public ./public
+COPY --from=builder /home/node/app/package.json ./package.json
+
+# Automatically leverage output traces to reduce image size 
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+# Some things are not allowed (see https://github.com/vercel/next.js/issues/38119#issuecomment-1172099259)
+COPY --from=builder --chown=node:node /home/node/app/.next/standalone ./
+COPY --from=builder --chown=node:node /home/node/app/.next/static ./.next/static
+
 EXPOSE 3000
 
-CMD ["pnpm", "start"]
+ENV PORT 3000
+
+CMD ["node", "server.js"]
