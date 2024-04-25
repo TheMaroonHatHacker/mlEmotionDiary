@@ -2,7 +2,7 @@
 import React, { Dispatch, SetStateAction, useState } from "react";
 
 export const LoginSystem = (props: {setter: Dispatch<SetStateAction<string | null>>, tokenSetter: Dispatch<SetStateAction<string | null>>}) => {
-  
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -18,7 +18,7 @@ export const LoginSystem = (props: {setter: Dispatch<SetStateAction<string | nul
     const formData = new FormData();
     formData.append("username", username);
     formData.append("password", password);
-    const response = await fetch("http://127.0.0.1:8000/auth/login", {
+    const response = await fetch("http://159.65.19.254:8000/auth/login", {
       method: "POST",
       body: formData,
     });
@@ -42,7 +42,7 @@ export const LoginSystem = (props: {setter: Dispatch<SetStateAction<string | nul
     const formData = new FormData();
     formData.append("username", username);
     formData.append("password", password);
-    const response = await fetch(`http://127.0.0.1:8000/auth/signup`, {
+    const response = await fetch(`http://159.65.19.254:8000/auth/signup`, {
       method: "POST",
       body: formData,
     });
@@ -73,4 +73,3 @@ export const LoginSystem = (props: {setter: Dispatch<SetStateAction<string | nul
     </div>
   );
 };
-

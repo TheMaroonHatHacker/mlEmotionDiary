@@ -25,7 +25,7 @@ export const Analysis = (props: { token: string | null }) => {
     const form =
       new FormData(); /* Creating a new form to send the token to the server */
     form.append("token", usrToken); /* Appending the token to the form */
-    const response = await fetch(`http://127.0.0.1:8000/ai/analysis`, {
+    const response = await fetch(`http://159.65.19.254:8000/ai/analysis`, {
       /* Fetching the data from the server */ method: "POST",
       body: form,
     });
@@ -58,8 +58,20 @@ export const Analysis = (props: { token: string | null }) => {
         Analyze
       </button>
       <p>{status}</p>
-      <div className="h-screen" style={{height:"60vh",position:"relative", marginBottom:"1%", padding:"1%"}}>
-        <Chart type="line" data={chartData} options={{maintainAspectRatio: false}}/>
+      <div
+        className="h-screen"
+        style={{
+          height: "60vh",
+          position: "relative",
+          marginBottom: "1%",
+          padding: "1%",
+        }}
+      >
+        <Chart
+          type="line"
+          data={chartData}
+          options={{ maintainAspectRatio: false }}
+        />
       </div>
     </div>
   );

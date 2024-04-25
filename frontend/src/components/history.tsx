@@ -13,7 +13,7 @@ export const History = (props: { token: string | null }) => {
     setStatus("loading...");
     const form = new FormData();
     form.append("token", usrToken);
-    const response = await fetch(`http://127.0.0.1:8000/ai/history`, {
+    const response = await fetch(`http://159.65.19.254:8000/ai/history`, {
       method: "POST",
       body: form,
     });
@@ -41,8 +41,7 @@ export const History = (props: { token: string | null }) => {
               <p>{entry.text}</p>
             </div>
           </div>
-        ))
-        }
+        ))}
       </div>
     </div>
   );

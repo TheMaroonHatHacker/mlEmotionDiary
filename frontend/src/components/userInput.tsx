@@ -54,7 +54,7 @@ export const UserInput = (props: {
     const form = new FormData();
     form.append("text", inputText);
     form.append("token", usrToken);
-    const response = await fetch(`http://127.0.0.1:8000/ai/entry`, {
+    const response = await fetch(`http://159.65.19.254:8000/ai/entry`, {
       method: "POST",
       body: form,
     });
@@ -100,7 +100,12 @@ export const UserInput = (props: {
             <div
               key={index}
               className="radial-progress m-8 text-primary"
-              style={{ "--value": intensity, "--size": "5rem" } as React.CSSProperties}
+              style={
+                {
+                  "--value": intensity,
+                  "--size": "5rem",
+                } as React.CSSProperties
+              }
             >
               {emotion} | {intensity}
             </div>
