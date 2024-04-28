@@ -12,7 +12,7 @@ class dbInterface:
             return result
         except:
             return False
-    
+
     def createUser(self, username, password):
         cursor = self.connection.cursor()
         cursor.execute("INSERT INTO credentials (username, password) VALUES (%s, %s)", (username, password))
@@ -21,13 +21,13 @@ class dbInterface:
     def createEntry(self, username, context, emotions):
         cursor = self.connection.cursor()
         entryID = randint(0, 100000)
-        cursor.execute("INSERT INTO entries (entryID, username, text, timeanddate) VALUES (%s, %s, %s, NOW())", (entryID, username, context,))
+        cursor.execute("INSERT INTO entries (entryID, username, text, timeanddate) VALUES (%s, %s, %s, %s)", (entryID, username, context, "2021-01-01 00:00:00"))
         for emotion, value in emotions.items():
             cursor.execute("SELECT emotionID FROM emotions WHERE emotionType = %s", (emotion,))
             emotionID = cursor.fetchone()[0]
             cursor.execute("INSERT INTO emotionEntries (entryID, emotionID, intensity) VALUES (%s, %s, %s)", (entryID, emotionID, value))
         cursor.close()
-    
+
     def getAnalysis(self, username):
         cursor = self.connection.cursor()
         analysis = {}
