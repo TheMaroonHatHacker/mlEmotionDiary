@@ -21,7 +21,7 @@ class dbInterface:
     def createEntry(self, username, context, emotions):
         cursor = self.connection.cursor()
         entryID = randint(0, 100000)
-        cursor.execute("INSERT INTO entries (entryID, username, text, timeanddate) VALUES (%s, %s, %s, %s)", (entryID, username, context, "2021-01-01 00:00:00"))
+        cursor.execute("INSERT INTO entries (entryID, username, text, timeanddate) VALUES (%s, %s, %s, NOW())", (entryID, username, context,))
         for emotion, value in emotions.items():
             cursor.execute("SELECT emotionID FROM emotions WHERE emotionType = %s", (emotion,))
             emotionID = cursor.fetchone()[0]
