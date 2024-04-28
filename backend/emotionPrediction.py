@@ -12,7 +12,7 @@ def getPredictionProbability(input_text):  # input_text is a list of strings
     proccessedResults = {}
     for i in range(len(results)):
         proccessedResults[theModel.classes_[i]] = (
-            round(results[i], 1) * 100
+            round(results[i], 3) * 100
         )  # converting the probabilities into percentages
 
     return proccessedResults
