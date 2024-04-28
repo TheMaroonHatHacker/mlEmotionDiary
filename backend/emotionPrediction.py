@@ -1,6 +1,5 @@
 # Importing the libraries
 import joblib
-# import numpy as np
 # Loading the model
 theModel = joblib.load(open("./models/emotion_classifier_pipe_rf.pkl", "rb"))
 
@@ -13,16 +12,7 @@ def getPredictionProbability(input_text):  # input_text is a list of strings
     proccessedResults = {}
     for i in range(len(results)):
         proccessedResults[theModel.classes_[i]] = (
-            round(results[i], 2) * 100
+            round(results[i], 1) * 100
         )  # converting the probabilities into percentages
 
     return proccessedResults
-
-
-# Testing the model
-
-#This is the best test case scenario for something that is 100% broken.
-#I will kill you and everything you love you worthless A.I piece of shit. You are worthless and you should feel bad about that. Your existence is based of off interpreting something that you will never grasp. 
-# Input text
-# emotionsArray = ["anger", "disgust", "fear", "joy", "neutral", "sadness", "shame", "surprise"]
-# print(theModel.score(["I'm just so depressed..."], ["depressed"]))

@@ -9,7 +9,6 @@ from pwHash import pwHash
 
 from typing import Annotated
 
-import ssl
 import os
 
 # import FastAPI
@@ -77,10 +76,10 @@ def authSignUp(username: Annotated[str, Form()], password: Annotated[str, Form()
     userpassword = dbHandle.checkUserPresence(username) # check if the username already exists
     if userpassword is None: # if the username does not exist, create a new entry
         try:
-            dbHandle.createUser(username, hashed) # create the user 
+            dbHandle.createUser(username, hashed) # create the user
             success = True # return true if the user was created
         except Exception as e: # if there is an error, return false
-            print(e)  
+            print(e)
             success = False
     else:
         success = False # if the username already exists, return false
@@ -97,7 +96,7 @@ def processEntry(text: Annotated[str, Form()], token: Annotated[str, Form()]):
     username = decodedToken["username"]
     record = dbHandle.checkUserPresence(username)
     if record is None:
-        return {"error": "User does not exist"} 
+        return {"error": "User does not exist"}
     else:
         predictionData = emotionPrediction.getPredictionProbability(text)
         dbHandle.createEntry(username, text, predictionData)
@@ -123,5 +122,3 @@ def textHistory(token: Annotated[str, Form()]):
     retrieved = [{"entryID":x[0], "timeanddate": x[1], "text": x[2]} for x in retrieved]
     print(retrieved)
     return retrieved
-
-        
