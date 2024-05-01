@@ -34,6 +34,7 @@ class dbInterface:
         analysis["timeframe"] = []
         cursor.execute("SELECT emotionType, AVG(intensity) AS avg_intensity, DATE_FORMAT(timeanddate, '%Y-%m') AS month FROM emotionEntries JOIN emotions ON emotionEntries.emotionID = emotions.emotionID JOIN entries ON emotionEntries.entryID = entries.entryID WHERE entries.username = %s GROUP BY emotionType, month ORDER BY month ASC, emotionType ASC", (username,))
         monthlyAverages = cursor.fetchall()
+        print(monthlyAverages)
         for emotion, avgIntensity, month in monthlyAverages:
             if emotion not in analysis:
                 analysis[emotion] = []
