@@ -14,6 +14,13 @@ export const Analysis = (props: { token: string | null }) => {
     datasets: [],
   });
   const usrToken = props.token; /* setting the token to a variable */
+  function generateRandomColourRGB() {
+    /* Function to generate a random colour */
+    const r = Math.floor(Math.random() * 256); /* Generating a random number */
+    const g = Math.floor(Math.random() * 256); /* Generating a random number */
+    const b = Math.floor(Math.random() * 256); /* Generating a random number */
+    return `rgb(${r}, ${g}, ${b})`; /* Returning the random colour */
+  }
   const handleAnalysis = async () => {
     /* Requests user data using the API, then adds the data received to the chartData variable used to display data on the chart*/
     if (usrToken === null) {
@@ -25,7 +32,7 @@ export const Analysis = (props: { token: string | null }) => {
     const form =
       new FormData(); /* Creating a new form to send the token to the server */
     form.append("token", usrToken); /* Appending the token to the form */
-    const response = await fetch(`http://159.65.19.254:8000/ai/analysis`, {
+    const response = await fetch(`http://127.0.0.1:8000/ai/analysis`, {
       /* Fetching the data from the server */ method: "POST",
       body: form,
     });
@@ -36,11 +43,12 @@ export const Analysis = (props: { token: string | null }) => {
       /* Looping through the data received from the server */
       if (item !== "timeframe") {
         /* If the item is not the timeframe, it will add the data to the datasets array */
+
         datasets.push({
           /* Pushing the data to the datasets array */ label: item,
           data: data[item],
           fill: false,
-          borderColor: "rgb(75, 192, 192)",
+          borderColor: generateRandomColourRGB(),
           tension: 0.1,
         });
       }
@@ -61,7 +69,7 @@ export const Analysis = (props: { token: string | null }) => {
       <div
         className="h-screen"
         style={{
-          height: "60vh",
+          height: "50vh",
           position: "relative",
           marginBottom: "1%",
           padding: "1%",

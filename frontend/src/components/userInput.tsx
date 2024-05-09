@@ -1,12 +1,13 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState } from "react"; /*import react JS library*/
 
 export const UserInput = (props: {
+  /*Defines the properties used (and the types expected for the props passed in).  */
   userName: string | null;
   token: string | null;
 }) => {
   type Emotion = {
-    anger: number;
+    /*Defines the types of the emotions that can be predicted. */ anger: number;
     boredom: number;
     empty: number;
     enthusiasm: number;
@@ -21,7 +22,7 @@ export const UserInput = (props: {
     worry: number;
   };
   const initialEmotion: Emotion = {
-    anger: 0,
+    /*Initializes the emotions to 0. */ anger: 0,
     boredom: 0,
     empty: 0,
     enthusiasm: 0,
@@ -36,11 +37,14 @@ export const UserInput = (props: {
     worry: 0,
   };
   const [status, setStatus] = useState("");
-  const [emotions, setEmotions] = useState<Emotion | null>(initialEmotion);
+  const [emotions, setEmotions] = useState<Emotion | null>(
+    initialEmotion,
+  ); /*Initializes the emotions to the initialEmotion. */
   const [inputText, setInputText] = useState("");
-  const usrName = props.userName;
-  const usrToken = props.token;
-  console.log(usrName);
+  const usrName =
+    props.userName; /*Initializes the usrName to the userName passed in. */
+  const usrToken =
+    props.token; /*Initializes the usrToken to the token passed in. */
   const handlePredict = async () => {
     if (inputText === "") {
       setStatus("please enter some text");
@@ -51,15 +55,24 @@ export const UserInput = (props: {
       return;
     }
     setStatus("loading...");
-    const form = new FormData();
-    form.append("text", inputText);
+    const form = new FormData(); /*Creates a new FormData object. */
+    form.append(
+      "text",
+      inputText,
+    ); /*Appends the inputText and the user token to the FormData object */
     form.append("token", usrToken);
-    const response = await fetch(`http://159.65.19.254:8000/ai/entry`, {
+    const response = await fetch(`http://127.0.0.1:8000/ai/entry`, {
       method: "POST",
       body: form,
-    });
+    }); /*Fetches the data from the server. */
     const data = await response.json();
-    setEmotions(data);
+    if (data.error) {
+      setStatus(data.error);
+      return;
+    }
+    setEmotions(
+      data,
+    ); /*Sets the emotions to the data fetched from the server. */
     setStatus("Data Loaded");
     const emotion = [
       "anger",
@@ -75,10 +88,11 @@ export const UserInput = (props: {
       "sadness",
       "suprise",
       "worry",
-    ];
+    ]; /*Initializes the emotions to the array of emotions. */
   };
 
   return (
+    /*Returns the following JSX code to be rendered as HTML on the page */
     <div className="">
       <div className="justify-center items-center flex join join-vertical">
         <textarea
@@ -96,20 +110,25 @@ export const UserInput = (props: {
       </div>
       <div className="m-8 grid grid-cols-5 text-center">
         {emotions &&
-          Object.entries(emotions).map(([emotion, intensity], index) => (
-            <div
-              key={index}
-              className="radial-progress m-8 text-primary"
-              style={
-                {
-                  "--value": intensity,
-                  "--size": "5rem",
-                } as React.CSSProperties
-              }
-            >
-              {emotion} | {intensity}
-            </div>
-          ))}
+          Object.entries(emotions).map(
+            (
+              [emotion, intensity],
+              index /*Maps the emotions and their intensity to the radial-progress component. */,
+            ) => (
+              <div
+                key={index}
+                className="radial-progress m-8 text-primary"
+                style={
+                  {
+                    "--value": intensity,
+                    "--size": "5rem",
+                  } as React.CSSProperties /*Sets the value and size of the radial-progress component. */
+                }
+              >
+                {emotion} | {intensity}
+              </div>
+            ),
+          )}
       </div>
     </div>
   );

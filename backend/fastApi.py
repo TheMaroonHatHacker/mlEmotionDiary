@@ -4,7 +4,6 @@
 import emotionPrediction
 from jwthandler import jwtHandler
 from dbInterface import dbInterface
-from dbInterfaceLibsql import dbInterfaceLite as dbInterfaceLibsql
 from pwHash import pwHash
 
 from typing import Annotated
@@ -15,11 +14,9 @@ import os
 from fastapi import FastAPI, Form
 from fastapi.middleware.cors import CORSMiddleware
 
-
 # Allow for the use of .env files
 from dotenv import load_dotenv
 
-# mysql connection
 # import MySQLdb
 import mysql.connector
 
@@ -42,7 +39,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+# create the connection to the database
 connection = mysql.connector.connect(
     host=os.getenv("DB_HOST"),
     user=os.getenv("DB_USERNAME"),
@@ -50,7 +47,7 @@ connection = mysql.connector.connect(
     database=os.getenv("DB_NAME"),
     autocommit=True
 )
-# create the JWT handler and the database interfacez
+# create the JWT handler and the database interface
 jwtHandle = jwtHandler(os.getenv("JWT_SECRET"))
 dbHandle = dbInterface(connection)
 hashhandle = pwHash()
@@ -89,27 +86,25 @@ def authSignUp(username: Annotated[str, Form()], password: Annotated[str, Form()
 # Create a new entry
 @app.post("/ai/entry") # declare the API route
 def processEntry(text: Annotated[str, Form()], token: Annotated[str, Form()]):
-    cursor = connection.cursor()
+    decodedToken = jwtHandle.decodeJWTToken(token) # decode the token
+    if decodedToken == "expired" or decodedToken == "invalid": # if the token is expired or invalid, return an error
+        return {"error": "Invalid token"}
+    username = decodedToken["username"] # get the username from the token
+    record = dbHandle.checkUserPresence(username) # check if the user exists
+    if record is None: # if the user does not exist, return an error
+        return {"error": "User does not exist"}
+    else:
+        predictionData = emotionPrediction.getPredictionProbability(text) # get the prediction data
+        dbHandle.createEntry(username, text, predictionData) # create the entry in the database
+        return predictionData # return the prediction data
+
+@app.post("/ai/analysis") # declare the API route
+def overallAnalysis(token: Annotated[str, Form()]):
     decodedToken = jwtHandle.decodeJWTToken(token) # decode the token
     if decodedToken == "expired" or decodedToken == "invalid": # if the token is expired or invalid, return an error
         return {"error": "Invalid token"}
     username = decodedToken["username"]
-    record = dbHandle.checkUserPresence(username)
-    if record is None:
-        return {"error": "User does not exist"}
-    else:
-        predictionData = emotionPrediction.getPredictionProbability(text)
-        dbHandle.createEntry(username, text, predictionData)
-        return predictionData
-
-@app.post("/ai/analysis")
-def overallAnalysis(token: Annotated[str, Form()]):
-    decodedToken = jwtHandle.decodeJWTToken(token)
-    if decodedToken == "expired" or decodedToken == "invalid":
-        return {"error": "Invalid token"}
-    username = decodedToken["username"]
-    retrieved = dbHandle.getAnalysis(username)
-    print (retrieved)
+    retrieved = dbHandle.getAnalysis(username) # get the analysis data
     return retrieved
 
 @app.post("/ai/history")

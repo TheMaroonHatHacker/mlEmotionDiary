@@ -1,8 +1,11 @@
 "use client";
 import React, { Dispatch, SetStateAction, useState } from "react";
 
-export const LoginSystem = (props: {setter: Dispatch<SetStateAction<string | null>>, tokenSetter: Dispatch<SetStateAction<string | null>>}) => {
-
+export const LoginSystem = (props: {
+  // Defining the function with props for the authentication token, and the setter function
+  setter: Dispatch<SetStateAction<string | null>>;
+  tokenSetter: Dispatch<SetStateAction<string | null>>;
+}) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -15,15 +18,14 @@ export const LoginSystem = (props: {setter: Dispatch<SetStateAction<string | nul
   };
 
   const handleLogin = async () => {
-    const formData = new FormData();
-    formData.append("username", username);
+    const formData = new FormData(); // Creating a new FormData object
+    formData.append("username", username); // Appending the username and password to the FormData object
     formData.append("password", password);
-    const response = await fetch("http://159.65.19.254:8000/auth/login", {
+    const response = await fetch("http://127.0.0.1:8000/auth/login", {
       method: "POST",
       body: formData,
-    });
-    const data = await response.json();
-    console.log(data["auth"]);
+    }); // Sending a POST request to the server with the FormData object
+    const data = await response.json(); // Parsing the response from the server to JSON
     if (data["auth"] == true) {
       try {
         console.log("username:", username);
@@ -35,14 +37,14 @@ export const LoginSystem = (props: {setter: Dispatch<SetStateAction<string | nul
         console.error("Failed to set item in localStorage:", error);
       }
     } else {
-      props.setter("invalid")
+      props.setter("invalid");
     }
   };
   const handleRegister = async () => {
     const formData = new FormData();
     formData.append("username", username);
     formData.append("password", password);
-    const response = await fetch(`http://159.65.19.254:8000/auth/signup`, {
+    const response = await fetch(`http://127.0.0.1:8000/auth/signup`, {
       method: "POST",
       body: formData,
     });
