@@ -2,5 +2,5 @@
 {% block title %}Home{% endblock title %}
 {% block body %}
 <h1 class="text-3xl font-bold">Hello Jinja!</h1>
-<button class="btn btn-primary">Hello</button>
+<button class="btn btn-primary" hx-get="/clicked" hx-swap="innerHTML">Click me!</button>
 {% endblock body %}
