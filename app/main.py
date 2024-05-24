@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Request
+from typing import Annotated
+from fastapi import FastAPI, Path, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -7,7 +8,6 @@ from fastapi.templating import Jinja2Templates
 ALLOWED_ORIGINS = ["http://localhost:8000"]
 ALLOWED_METHODS = ["GET", "POST"]
 
-count = 0
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
@@ -27,8 +27,10 @@ def home(request: Request):
     return templates.TemplateResponse(request=request, name="home.j2")
 
 
-@app.get("/clicked", response_class=HTMLResponse)
-def clicked():
-    global count
-    count += 1
-    return HTMLResponse(f"<span>Count: {count}</span>")
+@app.get("/clicked/{count}", response_class=HTMLResponse)
+def clicked(
+    request: Request, count: Annotated[int, Path(title="Current count of button")]
+):
+    return templates.TemplateResponse(
+        request=request, name="button.j2", context={"count": count + 1}
+    )
