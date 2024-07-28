@@ -19,11 +19,11 @@ and have a play.
 
 For dev work, it's a little more involved.
 
-For the frontend, you'll need to run pnpm install in the frontend directory.
+For the frontend, you'll need to run `pnpm install` in the frontend directory.
 
-For the backend, you'll need to run pip install -r requirements.txt in the backend directory.
+For the backend, you'll need to run `pip install -r requirements.txt` in the backend directory.
 
-Then you can run the frontend with pnpm dev in the frontend directory and the backend with uvicorn fastApi:app --reload in the backend directory.
+Then you can run the frontend with `pnpm dev` in the frontend directory and the backend with `uvicorn fastApi:app --reload` in the backend directory.
 
 You'll need to provide you're own .env file for the database connection. Database is included, but currently doesn't work. Fix is on the horizon.
 
