@@ -1,4 +1,5 @@
 "use client";
+import { config } from "@/config";
 import React, { useState } from "react"; /* import react JS library */
 
 export const History = (props: { token: string | null }) => {
@@ -14,7 +15,7 @@ export const History = (props: { token: string | null }) => {
     setStatus("loading...");
     const form = new FormData();
     form.append("token", usrToken);
-    const response = await fetch(`http://127.0.0.1:8000/ai/history`, {
+    const response = await fetch(`${config.apiServer}/ai/history`, {
       method: "POST",
       body: form,
     }); /* fetch the history data from the server */

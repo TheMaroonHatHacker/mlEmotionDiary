@@ -1,4 +1,5 @@
 "use client";
+import { config } from "@/config";
 import React, { Dispatch, SetStateAction, useState } from "react";
 
 export const LoginSystem = (props: {
@@ -21,7 +22,7 @@ export const LoginSystem = (props: {
     const formData = new FormData(); // Creating a new FormData object
     formData.append("username", username); // Appending the username and password to the FormData object
     formData.append("password", password);
-    const response = await fetch("http://127.0.0.1:8000/auth/login", {
+    const response = await fetch(`${config.apiServer}/auth/login`, {
       method: "POST",
       body: formData,
     }); // Sending a POST request to the server with the FormData object
@@ -44,7 +45,7 @@ export const LoginSystem = (props: {
     const formData = new FormData();
     formData.append("username", username);
     formData.append("password", password);
-    const response = await fetch(`http://127.0.0.1:8000/auth/signup`, {
+    const response = await fetch(`${config.apiServer}/auth/signup`, {
       method: "POST",
       body: formData,
     });

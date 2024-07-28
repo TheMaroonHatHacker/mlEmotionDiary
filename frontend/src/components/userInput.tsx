@@ -1,4 +1,5 @@
 "use client";
+import { config } from "@/config";
 import React, { useState } from "react"; /*import react JS library*/
 
 export const UserInput = (props: {
@@ -61,7 +62,7 @@ export const UserInput = (props: {
       inputText,
     ); /*Appends the inputText and the user token to the FormData object */
     form.append("token", usrToken);
-    const response = await fetch(`http://127.0.0.1:8000/ai/entry`, {
+    const response = await fetch(`${config.apiServer}/ai/entry`, {
       method: "POST",
       body: form,
     }); /*Fetches the data from the server. */

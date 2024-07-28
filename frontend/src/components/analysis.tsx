@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import "chart.js/auto";
 import { Chart } from "react-chartjs-2";
+import { config } from "@/config";
 
 /* imports all the libraries needed (react, Chart.js, and react-chartjs used for rendering the chart as a react component) */
 
@@ -32,7 +33,7 @@ export const Analysis = (props: { token: string | null }) => {
     const form =
       new FormData(); /* Creating a new form to send the token to the server */
     form.append("token", usrToken); /* Appending the token to the form */
-    const response = await fetch(`http://127.0.0.1:8000/ai/analysis`, {
+    const response = await fetch(`${config.apiServer}/ai/analysis`, {
       /* Fetching the data from the server */ method: "POST",
       body: form,
     });

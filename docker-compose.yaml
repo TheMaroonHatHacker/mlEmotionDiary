@@ -1,0 +1,30 @@
+services:
+  db:
+    image: mysql:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+    volumes:
+      - ./actualDB/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    ports:
+      - 3306:3306
+  backend:
+    build:
+      context: backend
+    image: ghcr.io/themaroonhathacker/mldiary-backend:latest
+    environment:
+      - DB_HOST=db
+      - DB_USERNAME=root
+      - DB_PASSWORD=password
+      - DB_NAME=userdata
+      - JWT_SECRET=fjfhdjksfah;djksfhdjslhfhfsh
+    ports:
+      - 8000:8080
+  frontend:
+    command: pnpm dev
+    build:
+      context: frontend
+    image: ghcr.io/themaroonhathacker/mldiary-frontend:latest
+    environment:
+      - NEXT_PUBLIC_API_SERVER=http://127.0.0.1:8000
+    ports:
+      - 3000:3000
