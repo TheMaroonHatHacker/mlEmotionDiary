@@ -9,6 +9,10 @@ services:
       - 3306:3306
   backend:
     build:
+      x-bake:
+        platforms:
+          - linux/amd64
+          - linux/arm64
       context: backend
     image: ghcr.io/themaroonhathacker/mldiary-backend:latest
     environment:
@@ -23,6 +27,10 @@ services:
     command: pnpm dev
     build:
       context: frontend
+      x-bake:
+        platforms:
+          - linux/amd64
+          - linux/arm64
     image: ghcr.io/themaroonhathacker/mldiary-frontend:latest
     environment:
       - NEXT_PUBLIC_API_SERVER=http://127.0.0.1:8000
