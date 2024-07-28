@@ -7,14 +7,24 @@ It's built using Python, Typescript, and MySQL.
 I've kept it up as I felt there weren't enough example projects out there, and so wanted to have mine up as an example. Whilst it's not the best, it's a good middle of the road example. As part of this project, I've provided the original Write-Up as well, so you can look at that if you so wish. I've also broken down how many marks are in each section, and the grade the project as a whole got. 
 I hope that people find this helpful, and can learn from my successes, as well as all the mistakes I made. This branch will not be changing as to preserve it as a resource. This project will also be redone on the main branch, so if you want to see it done better, check out the master branch.
 
-## How to run?
+## How to download, run, and develop
 
-For dev work, you'll need to install the dependancies.
+The recommended way to run is through docker.
 
-For the frontend, you'll need to run `pnpm install` in the `frontend` directory.
+On a system with docker installed, simply run
 
-For the backend, you'll need to run `pip install -r requirements.txt` in the `backend` directory.
+`docker compose up`
 
-Then you can run the frontend with `pnpm dev` in the `frontend` directory and the backend with `uvicorn fastApi:app --reload` in the `backend` directory.
+and have a play.
 
-You'll need to provide you're own .env file for the database connection.
+For dev work, it's a little more involved.
+
+For the frontend, you'll need to run pnpm install in the frontend directory.
+
+For the backend, you'll need to run pip install -r requirements.txt in the backend directory.
+
+Then you can run the frontend with pnpm dev in the frontend directory and the backend with uvicorn fastApi:app --reload in the backend directory.
+
+You'll need to provide you're own .env file for the database connection. Database is included, but currently doesn't work. Fix is on the horizon.
+
+
