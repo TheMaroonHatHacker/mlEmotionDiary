@@ -29,3 +29,20 @@ CREATE TABLE `emotionEntries` (
   FOREIGN KEY (`entryID`) REFERENCES `entries` (`entryID`),
   FOREIGN KEY (`emotionID`) REFERENCES `emotions` (`emotionID`)
 );
+
+INSERT into emotions (emotionID, emotionType)
+VALUES
+  (0, 'anger'),
+  (1, 'hate'),
+  (2, 'worry'),
+  (3, 'sadness'),
+  (4, 'surprise'),
+  (5, 'empty'),
+  (6, 'happiness'),
+  (7, 'boredom'),
+  (8, 'relief'),
+  (9, 'love'),
+  (10, 'enthusiasm'),
+  (11, 'fun'),
+  (12, 'neutral')
+;
