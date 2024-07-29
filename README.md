@@ -25,6 +25,6 @@ For the backend, you'll need to run `pip install -r requirements.txt` in the bac
 
 Then you can run the frontend with `pnpm dev` in the frontend directory and the backend with `uvicorn fastApi:app --reload` in the backend directory.
 
-You'll need to provide you're own .env file for the database connection. Database is included, but currently doesn't work. Fix is on the horizon.
+You'll need to provide you're own .env file for the database connection. Schema is included.
 
 
