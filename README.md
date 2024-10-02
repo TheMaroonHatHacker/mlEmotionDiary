@@ -7,7 +7,7 @@ It's built using Python, Typescript, and MySQL.
 I've kept it up as I felt there weren't enough example projects out there, and so wanted to have mine up as an example. Whilst it's not the best, it's a good middle of the road example. As part of this project, I've provided the original Write-Up as well, so you can look at that if you so wish. I've also broken down how many marks are in each section, and the grade the project as a whole got. 
 I hope that people find this helpful, and can learn from my successes, as well as all the mistakes I made. 
 
-## How to download, run, and develop
+## How to run and develop
 
 The recommended way to run is through docker.
 
