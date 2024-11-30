@@ -35,4 +35,4 @@ services:
     environment:
       - NEXT_PUBLIC_API_SERVER=http://127.0.0.1:8000
     ports:
-      - 3000:3000
+      - 3030:3000
